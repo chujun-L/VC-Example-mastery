@@ -1,1 +1,5 @@
-﻿
+﻿  MFC26.cpp
+  MFC26Dlg.cpp
+  正在生成代码...
+C:\Users\thinkserver\Desktop\VCExampleMastery\MFC26\MFC26Dlg.cpp(192,22): warning C4477:  “swprintf_s”: 格式字符串“%.8X”需要类型“unsigned int”的参数，但可变参数 1 拥有了类型“HWND”
+  MFC26.vcxproj -> C:\Users\thinkserver\Desktop\VCExampleMastery\MFC26\Debug\MFC26.exe

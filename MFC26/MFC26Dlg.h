@@ -25,10 +25,20 @@ public:
 protected:
 	HICON m_hIcon;
 
+	HCURSOR m_hCursor;
+	RECT m_rtCtrl;
+	BOOL m_bCapturing;
+	HWND m_hwndDest;
+
 	// 生成的消息映射函数
 	virtual BOOL OnInitDialog();
 	afx_msg void OnSysCommand(UINT nID, LPARAM lParam);
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+	afx_msg void OnBnClickedButton1();
+	afx_msg void OnBnClickedButton2();
 };

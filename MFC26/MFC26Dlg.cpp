@@ -65,6 +65,10 @@ BEGIN_MESSAGE_MAP(CMFC26Dlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_WM_LBUTTONDOWN()
+	ON_WM_LBUTTONUP()
+	ON_BN_CLICKED(IDC_BUTTON1, &CMFC26Dlg::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTON2, &CMFC26Dlg::OnBnClickedButton2)
 END_MESSAGE_MAP()
 
 
@@ -100,6 +104,8 @@ BOOL CMFC26Dlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
+	m_hCursor = LoadCursor(NULL, IDC_SIZEALL);
+	GetDlgItem(IDC_CAP)->GetWindowRect(&m_rtCtrl);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -153,3 +159,59 @@ HCURSOR CMFC26Dlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CMFC26Dlg::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	// 检查鼠标是否在小图标上
+	if (point.x >= m_rtCtrl.left && point.x <= m_rtCtrl.right
+		|| point.y >= m_rtCtrl.top && point.y <= m_rtCtrl.bottom) {
+		//AfxMessageBox(TEXT("hit"));
+
+		m_bCapturing = TRUE;
+		SetCapture();
+		SetCursor(m_hCursor);
+	}
+
+	CDialogEx::OnLButtonDown(nFlags, point);
+}
+
+
+void CMFC26Dlg::OnLButtonUp(UINT nFlags, CPoint point)
+{
+	TCHAR szBuf[MAX_PATH] = { 0 };
+
+	if (m_bCapturing) {
+		ReleaseCapture();
+		m_bCapturing = FALSE;
+
+		POINT pt = point;
+		ClientToScreen(&pt);
+
+		m_hwndDest = ::WindowFromPoint(pt);
+		_stprintf_s(szBuf, TEXT("0x%.8X"), m_hwndDest);
+		SetDlgItemText(IDC_EDIT_HWND, szBuf);
+		GetClassName(m_hwndDest, szBuf, MAX_PATH);
+		SetDlgItemText(IDC_EDIT_CLASS, szBuf);
+
+		::SendMessage(m_hwndDest, WM_GETTEXT, MAX_PATH, (LPARAM)szBuf);
+		SetDlgItemText(IDC_EDIT_TEXT, szBuf);
+	}
+
+	CDialogEx::OnLButtonUp(nFlags, point);
+}
+
+
+void CMFC26Dlg::OnBnClickedButton1()
+{
+	CString str;
+
+	GetDlgItemText(IDC_EDIT_MODIFY, str);
+	::SendMessage(m_hwndDest, WM_SETTEXT, 0, (LPARAM)(LPCTSTR)str);
+}
+
+
+void CMFC26Dlg::OnBnClickedButton2()
+{
+	::SendMessage(m_hwndDest, WM_CLOSE, 0, 0);
+}
