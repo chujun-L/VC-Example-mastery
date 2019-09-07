@@ -7,6 +7,7 @@ public:
 
 	BOOL Attach(HWND hWnd);
 	BOOL GetStringValue(LPTSTR lpBuffer, int nLen);
+	BOOL GetDoubleValue(double *dValue);
 
 private:
 	HWND m_hWnd;

@@ -38,6 +38,18 @@ BOOL CDoubleEdit::GetStringValue(LPTSTR lpBuffer, int nLen)
 	return GetWindowText(m_hWnd, lpBuffer, nLen);
 }
 
+BOOL CDoubleEdit::GetDoubleValue(double *dValue)
+{
+	TCHAR szBuf[32] = { 0 };
+
+	if (GetStringValue(szBuf, 32)) {
+		*dValue = _tstof(szBuf);
+		return TRUE;
+	} else {
+		return FALSE;
+	}
+}
+
 LRESULT APIENTRY CDoubleEdit::NewEditProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	CDoubleEdit *pEdit = (CDoubleEdit *)GetProp(hWnd, DOUBLE_EDIT_PROP_NAME);

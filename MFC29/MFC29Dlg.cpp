@@ -67,6 +67,7 @@ BEGIN_MESSAGE_MAP(CMFC29Dlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BUTTON1, &CMFC29Dlg::OnBnClickedButton1)
 END_MESSAGE_MAP()
 
 
@@ -156,3 +157,14 @@ HCURSOR CMFC29Dlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CMFC29Dlg::OnBnClickedButton1()
+{
+	double dValue = 0.0;
+	TCHAR szBuf[32] = {0};
+
+	g_edit.GetDoubleValue(&dValue);
+	_stprintf_s(szBuf, TEXT("输入的数值：%.10f"), dValue);
+	SetDlgItemText(IDC_RESULT, szBuf);
+}
