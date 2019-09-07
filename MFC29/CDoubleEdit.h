@@ -6,6 +6,7 @@ public:
 	~CDoubleEdit();
 
 	BOOL Attach(HWND hWnd);
+	BOOL GetStringValue(LPTSTR lpBuffer, int nLen);
 
 private:
 	HWND m_hWnd;

@@ -33,18 +33,45 @@ BOOL CDoubleEdit::Attach(HWND hWnd)
 	return TRUE;
 }
 
+BOOL CDoubleEdit::GetStringValue(LPTSTR lpBuffer, int nLen)
+{
+	return GetWindowText(m_hWnd, lpBuffer, nLen);
+}
+
 LRESULT APIENTRY CDoubleEdit::NewEditProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	CDoubleEdit *pEdit = (CDoubleEdit *)GetProp(hWnd, DOUBLE_EDIT_PROP_NAME);
+	if (pEdit == NULL) {
+		return DefWindowProc(hWnd, uMsg, wParam, lParam);
+	}
 
 	// 拦截WM_CHAR消息
 	BOOL bCanceled = FALSE;
+	TCHAR szBuf[32] = {0};
 
 	if (uMsg == WM_CHAR) {
+		pEdit->GetStringValue(szBuf, 32);
+
 		switch (wParam) {
+		case '.':
+			// 只允许输入1个小数点
+			if (_tcschr(szBuf, '.')) {
+				bCanceled = TRUE;
+			}
+			break;
+
+		case '-':
+			// 只允许在开始的位置输入'-'负号
+			if (_tcschr(szBuf, '-')) {
+				bCanceled = TRUE;
+			} else if (LOWORD(SendMessage(hWnd, EM_GETSEL, 0, 0)) != 0) {
+				bCanceled = TRUE;
+			}
+			break;
+
 		default:
 			// 允许输入0~9及backspace键
-			if ((wParam >= '9' || wParam <= '0') && wParam != VK_BACK) {
+			if ((wParam > '9' || wParam < '0') && wParam != VK_BACK) {
 				bCanceled = TRUE;
 			}
 		}
