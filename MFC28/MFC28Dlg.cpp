@@ -12,6 +12,12 @@
 #define new DEBUG_NEW
 #endif
 
+// 自定义消息第1种方法
+#define WM_DEFINED_MSG		(WM_USER + 100)
+// 自定义消息第2种方法
+#define MY_REGISTER_MSG_STR	TEXT("MY_MSG_STRING")
+
+UINT MODE2_MSG_ID;
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
@@ -54,6 +60,8 @@ CMFC28Dlg::CMFC28Dlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_MFC28_DIALOG, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+
+	MODE2_MSG_ID = RegisterWindowMessage(MY_REGISTER_MSG_STR);
 }
 
 void CMFC28Dlg::DoDataExchange(CDataExchange* pDX)
@@ -65,6 +73,10 @@ BEGIN_MESSAGE_MAP(CMFC28Dlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BUTTON1, &CMFC28Dlg::OnBnClickedButton1)
+	ON_MESSAGE(WM_DEFINED_MSG, &CMFC28Dlg::OnDefindMsg)
+	ON_BN_CLICKED(IDC_BUTTON2, &CMFC28Dlg::OnBnClickedButton2)
+	ON_REGISTERED_MESSAGE(MODE2_MSG_ID, &CMFC28Dlg::OnRegisterMsg)
 END_MESSAGE_MAP()
 
 
@@ -153,3 +165,34 @@ HCURSOR CMFC28Dlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CMFC28Dlg::OnBnClickedButton1()
+{
+	//PostMessage(WM_DEFINED_MSG, 0, 0);
+	SendMessage(WM_DEFINED_MSG, 0, 0);
+}
+
+void CMFC28Dlg::OnBnClickedButton2()
+{
+	SendMessage(MODE2_MSG_ID, 0, 0);
+}
+
+LRESULT CMFC28Dlg::OnDefindMsg(WPARAM wParam, LPARAM lParam)
+{
+	TCHAR szBuf[128] = {0};
+
+	_stprintf_s(szBuf, TEXT("收到自定义消息：WM_DEFINED_MSG, ID=0x%X"), WM_DEFINED_MSG);
+	SetDlgItemText(IDC_OUTPUT, szBuf);
+
+	return LRESULT();
+}
+
+LRESULT CMFC28Dlg::OnRegisterMsg(WPARAM wParam, LPARAM lParam)
+{
+	TCHAR szBuf[128] = { 0 };
+
+	_stprintf_s(szBuf, TEXT("收到Register消息：WM_REGISTER_MSG, ID=0x%X"), MODE2_MSG_ID);
+	SetDlgItemText(IDC_OUTPUT, szBuf);
+	return LRESULT();
+}
