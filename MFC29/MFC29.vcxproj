@@ -187,6 +187,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="CDoubleEdit.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="MFC29.h" />
     <ClInclude Include="MFC29Dlg.h" />
@@ -195,6 +196,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="CDoubleEdit.cpp" />
     <ClCompile Include="MFC29.cpp" />
     <ClCompile Include="MFC29Dlg.cpp" />
     <ClCompile Include="pch.cpp">
