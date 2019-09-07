@@ -6,6 +6,7 @@ public:
 	~CDoubleEdit();
 
 	BOOL Attach(HWND hWnd);
+	void Detach();
 	BOOL GetStringValue(LPTSTR lpBuffer, int nLen);
 	BOOL GetDoubleValue(double *dValue);
 

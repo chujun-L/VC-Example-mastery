@@ -9,6 +9,7 @@ CDoubleEdit::CDoubleEdit()
 
 CDoubleEdit::~CDoubleEdit()
 {
+	Detach();
 }
 
 BOOL CDoubleEdit::Attach(HWND hWnd)
@@ -31,6 +32,17 @@ BOOL CDoubleEdit::Attach(HWND hWnd)
 	}
 
 	return TRUE;
+}
+
+void CDoubleEdit::Detach()
+{
+	if (m_hWnd == NULL) {
+		return;
+	}
+
+	SetWindowLong(m_hWnd,GWL_WNDPROC, m_lOldProc);
+	m_hWnd = NULL;
+	m_lOldProc = NULL;
 }
 
 BOOL CDoubleEdit::GetStringValue(LPTSTR lpBuffer, int nLen)

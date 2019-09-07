@@ -68,6 +68,7 @@ BEGIN_MESSAGE_MAP(CMFC29Dlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BUTTON1, &CMFC29Dlg::OnBnClickedButton1)
+	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 
@@ -167,4 +168,13 @@ void CMFC29Dlg::OnBnClickedButton1()
 	g_edit.GetDoubleValue(&dValue);
 	_stprintf_s(szBuf, TEXT("输入的数值：%.10f"), dValue);
 	SetDlgItemText(IDC_RESULT, szBuf);
+}
+
+
+void CMFC29Dlg::OnDestroy()
+{
+	CDialogEx::OnDestroy();
+
+	// TODO: 在此处添加消息处理程序代码
+	g_edit.Detach();
 }
