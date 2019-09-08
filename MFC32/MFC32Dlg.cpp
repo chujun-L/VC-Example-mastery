@@ -65,6 +65,7 @@ BEGIN_MESSAGE_MAP(CMFC32Dlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BUTTON_SM, &CMFC32Dlg::OnBnClickedButtonSm)
 END_MESSAGE_MAP()
 
 
@@ -153,3 +154,17 @@ HCURSOR CMFC32Dlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CMFC32Dlg::OnBnClickedButtonSm()
+{
+	CListBox *pListBox = (CListBox *)GetDlgItem(IDC_LIST);
+	pListBox->ResetContent();
+
+	CString strText;
+	strText.Format(TEXT("屏幕大小:   %d x %d"),
+				GetSystemMetrics(SM_CXSCREEN),
+				GetSystemMetrics(SM_CYSCREEN));
+
+	pListBox->AddString(strText);
+}

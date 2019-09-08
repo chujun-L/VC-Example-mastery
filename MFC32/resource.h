@@ -7,8 +7,8 @@
 #define IDS_ABOUTBOX                    101
 #define IDD_MFC32_DIALOG                102
 #define IDR_MAINFRAME                   128
-#define IDC_LIST1                       1000
-#define IDC_BUTTON1                     1001
+#define IDC_LIST                        1000
+#define IDC_BUTTON_SM                   1001
 
 // Next default values for new objects
 // 
