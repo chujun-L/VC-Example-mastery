@@ -70,6 +70,7 @@ BEGIN_MESSAGE_MAP(CMFC30Dlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BUTTON_RED, &CMFC30Dlg::OnBnClickedButtonRed)
 	ON_WM_TIMER()
+	ON_BN_CLICKED(IDC_BUTTON_GREEN, &CMFC30Dlg::OnBnClickedButtonGreen)
 END_MESSAGE_MAP()
 
 
@@ -163,7 +164,7 @@ HCURSOR CMFC30Dlg::OnQueryDragIcon()
 void CMFC30Dlg::OnBnClickedButtonRed()
 {
 	if (m_nRedID == 0) {
-		// 设置定时器的方式：消息通知
+		// 设置定时器的方式：消息通知(WM_TIMER)
 		m_nRedID = SetTimer(1, 500, NULL);
 	} else {
 		KillTimer(m_nRedID);
@@ -189,4 +190,30 @@ void CMFC30Dlg::OnTimer(UINT_PTR nIDEvent)
 	}
 
 	CDialogEx::OnTimer(nIDEvent);
+}
+
+VOID CALLBACK TimerProc(HWND hWnd, UINT uMsg, UINT uID, DWORD dwTime)
+{
+	int nShow;
+
+	HWND hGreen = ::GetDlgItem(hWnd, IDC_GREEN);
+	if (::IsWindowVisible(hGreen)) {
+		nShow = SW_HIDE;
+	} else {
+		nShow = SW_SHOW;
+	}
+
+	::ShowWindow(hGreen, nShow);
+}
+
+void CMFC30Dlg::OnBnClickedButtonGreen()
+{
+	if (m_nGreenID == 0) {
+		// 设置定时器的方式：回调函数
+		m_nGreenID = SetTimer(2, 1000, TimerProc);
+	} else {
+		KillTimer(m_nGreenID);
+		m_nGreenID = 0;
+		::ShowWindow(::GetDlgItem(m_hWnd, IDC_GREEN), SW_SHOW);
+	}
 }
