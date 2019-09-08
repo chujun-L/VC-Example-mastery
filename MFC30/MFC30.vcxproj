@@ -211,7 +211,9 @@
     <None Include="res\MFC30.rc2" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="res\green.bmp" />
     <Image Include="res\MFC30.ico" />
+    <Image Include="res\red.bmp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

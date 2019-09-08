@@ -54,6 +54,9 @@ CMFC30Dlg::CMFC30Dlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_MFC30_DIALOG, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+
+	m_nRedID = 0;
+	m_nGreenID = 0;
 }
 
 void CMFC30Dlg::DoDataExchange(CDataExchange* pDX)
@@ -65,6 +68,8 @@ BEGIN_MESSAGE_MAP(CMFC30Dlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BUTTON_RED, &CMFC30Dlg::OnBnClickedButtonRed)
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 
@@ -153,3 +158,35 @@ HCURSOR CMFC30Dlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CMFC30Dlg::OnBnClickedButtonRed()
+{
+	if (m_nRedID == 0) {
+		// 设置定时器的方式：消息通知
+		m_nRedID = SetTimer(1, 500, NULL);
+	} else {
+		KillTimer(m_nRedID);
+		m_nRedID = 0;
+		::ShowWindow(::GetDlgItem(m_hWnd, IDC_RED), SW_SHOW);
+	}
+}
+
+
+void CMFC30Dlg::OnTimer(UINT_PTR nIDEvent)
+{
+	int nShow;
+
+	if (nIDEvent == m_nRedID) {
+		HWND hRed = ::GetDlgItem(m_hWnd, IDC_RED);
+		if (::IsWindowVisible(hRed)) {
+			nShow = SW_HIDE;
+		} else {
+			nShow = SW_SHOW;
+		}
+
+		::ShowWindow(hRed, nShow);
+	}
+
+	CDialogEx::OnTimer(nIDEvent);
+}
