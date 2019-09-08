@@ -66,6 +66,8 @@ BEGIN_MESSAGE_MAP(CMFC33Dlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BUTTON_LOGOUT, &CMFC33Dlg::OnBnClickedButtonLogout)
+	ON_BN_CLICKED(IDC_BUTTON_SHUTDOWN, &CMFC33Dlg::OnBnClickedButtonShutdown)
+	ON_BN_CLICKED(IDC_BUTTON_REBOOT, &CMFC33Dlg::OnBnClickedButtonReboot)
 END_MESSAGE_MAP()
 
 
@@ -158,5 +160,104 @@ HCURSOR CMFC33Dlg::OnQueryDragIcon()
 
 void CMFC33Dlg::OnBnClickedButtonLogout()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	HANDLE hToken;
+	TOKEN_PRIVILEGES tkp;
+
+	// 注销
+	if (IDNO == MessageBox(TEXT("确定注销吗？"),
+				TEXT("Logout"), MB_YESNO)) {
+		return;
+	}
+
+	// 获取进程令牌
+	if (!OpenProcessToken(GetCurrentProcess(),
+			TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
+			&hToken)) {
+		AfxMessageBox(TEXT("OpenProcessToken failed"));
+		return;
+	}
+
+	// 提升权限
+	LookupPrivilegeValue(NULL, SE_SHUTDOWN_NAME, &tkp.Privileges[0].Luid);
+	tkp.PrivilegeCount = 1;
+	tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+
+	AdjustTokenPrivileges(hToken, FALSE, &tkp, 0, (PTOKEN_PRIVILEGES)NULL, 0);
+	if (GetLastError() != ERROR_SUCCESS) {
+		AfxMessageBox(TEXT("AdjustTokenPrivileges failed"));
+		return;
+	}
+
+	AfxMessageBox(TEXT("注销-提权成功"));
+	//ExitWindowsEx(EWX_LOGOFF, 0);
+}
+
+
+void CMFC33Dlg::OnBnClickedButtonShutdown()
+{
+	HANDLE hToken;
+	TOKEN_PRIVILEGES tkp;
+
+	// 注销
+	if (IDNO == MessageBox(TEXT("确定关机吗？"),
+		TEXT("Shutdown"), MB_YESNO)) {
+		return;
+	}
+
+	// 获取进程令牌
+	if (!OpenProcessToken(GetCurrentProcess(),
+		TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
+		&hToken)) {
+		AfxMessageBox(TEXT("OpenProcessToken failed"));
+		return;
+	}
+
+	// 提升权限
+	LookupPrivilegeValue(NULL, SE_SHUTDOWN_NAME, &tkp.Privileges[0].Luid);
+	tkp.PrivilegeCount = 1;
+	tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+
+	AdjustTokenPrivileges(hToken, FALSE, &tkp, 0, (PTOKEN_PRIVILEGES)NULL, 0);
+	if (GetLastError() != ERROR_SUCCESS) {
+		AfxMessageBox(TEXT("AdjustTokenPrivileges failed"));
+		return;
+	}
+
+	AfxMessageBox(TEXT("关机-提权成功"));
+	//ExitWindowsEx(EWX_SHUTDOWN, 0);
+}
+
+
+void CMFC33Dlg::OnBnClickedButtonReboot()
+{
+	HANDLE hToken;
+	TOKEN_PRIVILEGES tkp;
+
+	// 注销
+	if (IDNO == MessageBox(TEXT("确定重启吗？"),
+		TEXT("Reboot"), MB_YESNO)) {
+		return;
+	}
+
+	// 获取进程令牌
+	if (!OpenProcessToken(GetCurrentProcess(),
+		TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY,
+		&hToken)) {
+		AfxMessageBox(TEXT("OpenProcessToken failed"));
+		return;
+	}
+
+	// 提升权限
+	LookupPrivilegeValue(NULL, SE_SHUTDOWN_NAME, &tkp.Privileges[0].Luid);
+	tkp.PrivilegeCount = 1;
+	tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+
+	AdjustTokenPrivileges(hToken, FALSE, &tkp, 0, (PTOKEN_PRIVILEGES)NULL, 0);
+	if (GetLastError() != ERROR_SUCCESS) {
+		AfxMessageBox(TEXT("AdjustTokenPrivileges failed"));
+		return;
+	}
+
+	AfxMessageBox(TEXT("重启-提权成功"));
+	//ExitWindowsEx(EWX_REBOOT, 0);
 }

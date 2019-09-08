@@ -33,4 +33,6 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnBnClickedButtonLogout();
+	afx_msg void OnBnClickedButtonShutdown();
+	afx_msg void OnBnClickedButtonReboot();
 };

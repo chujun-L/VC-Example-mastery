@@ -9,7 +9,6 @@
 #define IDR_MAINFRAME                   128
 #define IDC_BUTTON_LOGOUT               1000
 #define IDC_BUTTON_SHUTDOWN             1001
-#define IDC_BUTTON_RESTART              1002
 #define IDC_BUTTON_REBOOT               1002
 
 // Next default values for new objects
