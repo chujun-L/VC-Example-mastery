@@ -67,6 +67,8 @@ BEGIN_MESSAGE_MAP(CMFC31Dlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BUTTON1, &CMFC31Dlg::OnBnClickedButton1)
 	ON_BN_CLICKED(IDC_BUTTON_WRITE, &CMFC31Dlg::OnBnClickedButtonWrite)
+	ON_BN_CLICKED(IDC_BUTTON_READ, &CMFC31Dlg::OnBnClickedButtonRead)
+	ON_BN_CLICKED(IDC_BUTTON2, &CMFC31Dlg::OnBnClickedButton2)
 END_MESSAGE_MAP()
 
 
@@ -191,8 +193,78 @@ void CMFC31Dlg::OnBnClickedButton1()
 	RegCloseKey(hKey);
 }
 
-
+/*
+ * 1) 执行该程序时需要以管理员身份打开 visual studio 2019
+ * 2) 在项目属性->链接器->清单文件->UAC执行级别(requireAdministrator (/level='requireAdministrator'))
+ */
 void CMFC31Dlg::OnBnClickedButtonWrite()
 {
+	HKEY hKey;
+	long lRet;
+	TCHAR *Class = TEXT("");
+	DWORD dwDisposition;
+
+	/*
+	// 基于Win32的应用程序应使用RegCreateKeyEx功能
+	lRet = RegCreateKey(HKEY_LOCAL_MACHINE, TEXT("SOFTWARE\\MyAppTest"), &hKey);
+	if (lRet == ERROR_SUCCESS) {
+		AfxMessageBox(TEXT("RegCreateKey success"));
+	} else {
+		AfxMessageBox(TEXT("RegCreateKey failed"));
+		return;
+	}*/
+
+	// 注册表的路径HKEY_LOCAL_MACHINE->SOFTWARE->WOW6432Node
+	lRet = RegCreateKeyEx(HKEY_LOCAL_MACHINE,
+						TEXT("SOFTWARE\\WOW6432Node\\MyAppTest"),
+						0,
+						Class,
+						REG_OPTION_NON_VOLATILE, 
+						KEY_WRITE | KEY_READ,
+						NULL,
+						&hKey,
+						&dwDisposition);
+
+	if (lRet == ERROR_SUCCESS) {
+		AfxMessageBox(TEXT("RegCreateKeyEx success"));
+	} else {
+		AfxMessageBox(TEXT("RegCreateKeyEx failed"));
+		return;
+	}
+
+	// 写数据
+	RegSetValue(hKey, NULL, REG_SZ, TEXT("Liebao"), 6);
+
+	DWORD dwAge = 30;
+	RegSetValueEx(hKey, TEXT("age"), 0, REG_DWORD, (const BYTE *)&dwAge, 4);
+
+	RegCloseKey(hKey);
+}
+
+
+void CMFC31Dlg::OnBnClickedButtonRead()
+{
+	LONG lValue = 0;
 	
+	RegQueryValue(HKEY_LOCAL_MACHINE, TEXT("SOFTWARE\\WOW6432Node\\MyAppTest"), NULL, &lValue);
+	TCHAR *pBuf = new TCHAR[lValue];
+	RegQueryValue(HKEY_LOCAL_MACHINE, TEXT("SOFTWARE\\WOW6432Node\\MyAppTest"), pBuf, &lValue);
+	AfxMessageBox(pBuf);
+	delete[] pBuf;
+}
+
+
+void CMFC31Dlg::OnBnClickedButton2()
+{
+	HKEY hKey;
+	DWORD dwType = 0;
+	DWORD dwData = 0;
+	DWORD dwLen = 0;
+	CString str;
+
+	RegOpenKey(HKEY_LOCAL_MACHINE, TEXT("SOFTWARE\\WOW6432Node\\MyAppTest"), &hKey);
+	RegQueryValueEx(hKey, TEXT("age"), 0, &dwType, (LPBYTE)&dwData, &dwLen);
+
+	str.Format(TEXT("age = %d"), dwData);
+	AfxMessageBox(str);
 }
