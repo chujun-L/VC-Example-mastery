@@ -65,6 +65,8 @@ BEGIN_MESSAGE_MAP(CMFC31Dlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BUTTON1, &CMFC31Dlg::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTON_WRITE, &CMFC31Dlg::OnBnClickedButtonWrite)
 END_MESSAGE_MAP()
 
 
@@ -153,3 +155,44 @@ HCURSOR CMFC31Dlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CMFC31Dlg::OnBnClickedButton1()
+{
+	long lRet;
+	HKEY hKey;
+	TCHAR tchData[64];
+	DWORD dwSize;
+
+	lRet = RegOpenKeyEx(HKEY_LOCAL_MACHINE, 
+		TEXT("HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0"),
+		0,
+		KEY_QUERY_VALUE,
+		&hKey);
+
+	dwSize = sizeof(tchData);
+	if (lRet == ERROR_SUCCESS) {
+		lRet = RegQueryValueEx(hKey,
+			TEXT("ProcessorNameString"),
+			NULL,
+			NULL,
+			(LPBYTE)tchData,
+			&dwSize);
+		
+		if (lRet == ERROR_SUCCESS) {
+			SetDlgItemText(IDC_STATIC, tchData);
+		} else {
+			AfxMessageBox(TEXT("RegQueryValueEx failed"));
+		}
+
+	} else {
+		AfxMessageBox(TEXT("RegOpenKeyEx failed"));
+	}
+	RegCloseKey(hKey);
+}
+
+
+void CMFC31Dlg::OnBnClickedButtonWrite()
+{
+	
+}
