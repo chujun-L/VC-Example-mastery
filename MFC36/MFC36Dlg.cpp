@@ -65,6 +65,12 @@ BEGIN_MESSAGE_MAP(CMFC36Dlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BUTTON1, &CMFC36Dlg::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTON2, &CMFC36Dlg::OnBnClickedButton2)
+	ON_BN_CLICKED(IDC_BUTTON3, &CMFC36Dlg::OnBnClickedButton3)
+	ON_BN_CLICKED(IDC_BUTTON4, &CMFC36Dlg::OnBnClickedButton4)
+	ON_BN_CLICKED(IDC_BUTTON6, &CMFC36Dlg::OnBnClickedButton6)
+	ON_BN_CLICKED(IDC_BUTTON5, &CMFC36Dlg::OnBnClickedButton5)
 END_MESSAGE_MAP()
 
 
@@ -153,3 +159,112 @@ HCURSOR CMFC36Dlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+// 记事本
+void CMFC36Dlg::OnBnClickedButton1()
+{
+	HWND hWnd = ::FindWindow(NULL,TEXT("无标题 - 记事本"));
+	if (!hWnd) {
+		AfxMessageBox(TEXT("没有找到：无标题 - 记事本"));
+		return;
+	}
+
+	// 获取窗口的句柄指针并将该窗口设为前景显示
+	CWnd *pWnd = CWnd::FromHandle(hWnd);
+	pWnd->SetForegroundWindow();
+
+	// 模拟键盘输入'a'
+	keybd_event(65, 0, 0, 0);
+	keybd_event(65, 0, KEYEVENTF_KEYUP, 0);
+}
+
+//计算器
+void CMFC36Dlg::OnBnClickedButton2()
+{
+	HWND hWnd = ::FindWindow(NULL, TEXT("计算器"));
+	if (!hWnd) {
+		AfxMessageBox(TEXT("没有找到：计算器"));
+		return;
+	}
+
+	// 获取窗口的句柄指针并将该窗口设为前景显示
+	CWnd *pWnd = CWnd::FromHandle(hWnd);
+	pWnd->SetForegroundWindow();
+
+	// 模拟键盘输入'a'
+	keybd_event(50, 0, 0, 0);
+	keybd_event(50, 0, KEYEVENTF_KEYUP, 0);
+}
+
+
+void CMFC36Dlg::OnBnClickedButton3()
+{
+	HWND hWnd = ::FindWindow(NULL, TEXT("计算器"));
+	if (!hWnd) {
+		AfxMessageBox(TEXT("没有找到：计算器"));
+		return;
+	}
+
+	// 获取窗口的句柄指针并将该窗口设为前景显示
+	CWnd *pWnd = CWnd::FromHandle(hWnd);
+	pWnd->SetForegroundWindow();
+	
+	// 屏幕像素1600 * 900
+	/*mouse_event(MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE,
+		100 * 65536 / 1600, 200 * 65536 / 900, 0, 0);*/
+}
+
+
+void CMFC36Dlg::OnBnClickedButton4()
+{
+	HWND hWnd = ::FindWindow(NULL, TEXT("计算器"));
+	if (!hWnd) {
+		AfxMessageBox(TEXT("没有找到：计算器"));
+		return;
+	}
+
+	// 获取窗口的句柄指针并将该窗口设为前景显示
+	CWnd *pWnd = CWnd::FromHandle(hWnd);
+	pWnd->SetForegroundWindow();
+
+	mouse_event(MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE,
+		100 * 65536 / 1600, 200 * 65536 / 900, 0, 0);
+	mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+}
+
+
+void CMFC36Dlg::OnBnClickedButton6()
+{
+	HWND hWnd = ::FindWindow(NULL, TEXT("计算器"));
+	if (!hWnd) {
+		AfxMessageBox(TEXT("没有找到：计算器"));
+		return;
+	}
+
+	// 获取窗口的句柄指针并将该窗口设为前景显示
+	CWnd *pWnd = CWnd::FromHandle(hWnd);
+	pWnd->SetForegroundWindow();
+
+	mouse_event(MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE,
+		100 * 65536 / 1600, 100 * 65536 / 900, 0, 0);
+	mouse_event(MOUSEEVENTF_RIGHTDOWN | MOUSEEVENTF_RIGHTUP, 0, 0, 0, 0);
+}
+
+
+void CMFC36Dlg::OnBnClickedButton5()
+{
+	HWND hWnd = ::FindWindow(NULL, TEXT("无标题 - 记事本"));
+	if (!hWnd) {
+		AfxMessageBox(TEXT("没有找到：无标题 - 记事本"));
+		return;
+	}
+
+	// 获取窗口的句柄指针并将该窗口设为前景显示
+	CWnd *pWnd = CWnd::FromHandle(hWnd);
+	pWnd->SetForegroundWindow();
+
+	mouse_event(MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE,
+		100 * 65536 / 1600, 100 * 65536 / 900, 0, 0);
+	mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+	mouse_event(MOUSEEVENTF_LEFTDOWN | MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
+}
