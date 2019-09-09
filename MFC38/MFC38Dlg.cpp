@@ -66,6 +66,7 @@ BEGIN_MESSAGE_MAP(CMFC38Dlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BUTTON1, &CMFC38Dlg::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTON2, &CMFC38Dlg::OnBnClickedButton2)
 END_MESSAGE_MAP()
 
 
@@ -161,12 +162,17 @@ void CMFC38Dlg::OnBnClickedButton1()
 	// * 在这可以不提升权限
 	RaisePrivileges();
 	// processId = 3256
-	HANDLE hProc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, 3256);
-	if (hProc == NULL) {
+	m_hProc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, 3256);
+	if (m_hProc == NULL) {
 		AfxMessageBox(TEXT("OpenProcess failed"));
 	} else {
 		AfxMessageBox(TEXT("OpenProcess success"));
 	}
+}
+
+void CMFC38Dlg::OnBnClickedButton2()
+{
+	TerminateProcess(m_hProc, 0);
 }
 
 // 提升权限
