@@ -71,6 +71,7 @@ BEGIN_MESSAGE_MAP(CMFC38Dlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON2, &CMFC38Dlg::OnBnClickedButton2)
 	ON_BN_CLICKED(IDC_BUTTON3, &CMFC38Dlg::OnBnClickedButton3)
 	ON_BN_CLICKED(IDC_BUTTON4, &CMFC38Dlg::OnBnClickedButton4)
+	ON_BN_CLICKED(IDC_BUTTON5, &CMFC38Dlg::OnBnClickedButton5)
 END_MESSAGE_MAP()
 
 
@@ -240,4 +241,10 @@ void CMFC38Dlg::OnBnClickedButton4()
 		AfxMessageBox(TEXT("OpenProcess failed"));
 		return;
 	}
+}
+
+
+void CMFC38Dlg::OnBnClickedButton5()
+{
+	ExitProcess(0);
 }
