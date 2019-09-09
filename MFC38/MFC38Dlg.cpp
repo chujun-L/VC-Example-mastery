@@ -70,6 +70,7 @@ BEGIN_MESSAGE_MAP(CMFC38Dlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON1, &CMFC38Dlg::OnBnClickedButton1)
 	ON_BN_CLICKED(IDC_BUTTON2, &CMFC38Dlg::OnBnClickedButton2)
 	ON_BN_CLICKED(IDC_BUTTON3, &CMFC38Dlg::OnBnClickedButton3)
+	ON_BN_CLICKED(IDC_BUTTON4, &CMFC38Dlg::OnBnClickedButton4)
 END_MESSAGE_MAP()
 
 
@@ -211,6 +212,25 @@ void CMFC38Dlg::OnBnClickedButton3()
 	// CalcFrame可以用spy++获取
 	HWND hCalc = ::FindWindow(TEXT("CalcFrame"), TEXT("计算器"));
 	GetWindowThreadProcessId(hCalc, &pid);
+
+	RaisePrivileges();
+	m_hProc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
+	if (m_hProc) {
+		AfxMessageBox(TEXT("OpenProcess success"));
+	} else {
+		AfxMessageBox(TEXT("OpenProcess failed"));
+		return;
+	}
+}
+
+
+// 当应用程序的标题会发生变化时，可以设置FindWindow()第二个参数为NULL
+void CMFC38Dlg::OnBnClickedButton4()
+{
+	DWORD pid;
+	// CalcFrame可以用spy++获取
+	HWND hNotepad = ::FindWindow(TEXT("Notepad"), NULL);
+	GetWindowThreadProcessId(hNotepad, &pid);
 
 	RaisePrivileges();
 	m_hProc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
