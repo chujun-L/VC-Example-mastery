@@ -158,5 +158,26 @@ HCURSOR CMFC39Dlg::OnQueryDragIcon()
 
 void CMFC39Dlg::OnBnClickedRunCmd()
 {
-	// TODO: 在此添加控件通知处理程序代码
+	BOOL bCreatProc;
+	TCHAR szCmd[MAX_PATH * 2] = TEXT("cmd");
+	STARTUPINFO si;
+	PROCESS_INFORMATION pi;
+	::ZeroMemory(&si, sizeof(si));
+	::ZeroMemory(&pi, sizeof(pi));
+
+	si.cb = sizeof(si);
+	si.wShowWindow = TRUE;
+	si.dwFlags = STARTF_USESHOWWINDOW;
+
+	bCreatProc = ::CreateProcess(NULL, szCmd, NULL, NULL,
+					TRUE,CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi);
+	// 防止句柄泄露警告
+	CloseHandle(pi.hProcess);
+	CloseHandle(pi.hThread);
+
+	if (!bCreatProc) {
+		MessageBox(TEXT("CreateProcess() failed"));
+	}
+
+
 }
