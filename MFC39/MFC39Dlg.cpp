@@ -155,29 +155,68 @@ HCURSOR CMFC39Dlg::OnQueryDragIcon()
 }
 
 
-
+// 设置工程属性：作用多字节字符集
 void CMFC39Dlg::OnBnClickedRunCmd()
 {
+	// 管道的读、写句柄
+	HANDLE hPWrite, hPRead;
+
+	SECURITY_ATTRIBUTES sa;
+	::ZeroMemory(&sa, sizeof(sa));
+	sa.nLength = sizeof(sa);
+	sa.bInheritHandle = TRUE;
+	sa.lpSecurityDescriptor = NULL;
+
+	TCHAR szBuf[4096] = {0};
+	DWORD dwRead;
+	CString strOutput;
+	
 	BOOL bCreatProc;
-	TCHAR szCmd[MAX_PATH * 2] = TEXT("cmd");
+	TCHAR szCmd[MAX_PATH * 2] = {0};
 	STARTUPINFO si;
 	PROCESS_INFORMATION pi;
 	::ZeroMemory(&si, sizeof(si));
 	::ZeroMemory(&pi, sizeof(pi));
-
 	si.cb = sizeof(si);
-	si.wShowWindow = TRUE;
-	si.dwFlags = STARTF_USESHOWWINDOW;
+	si.wShowWindow = SW_HIDE;
+	si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
+	si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
 
-	bCreatProc = ::CreateProcess(NULL, szCmd, NULL, NULL,
-					TRUE,CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi);
+	bCreatProc = ::CreatePipe(&hPRead, &hPWrite, &sa, 0);
+	if (!bCreatProc) {
+		MessageBox(TEXT("CreatePipe() failed"));
+		return;
+	}
+	si.hStdOutput = hPWrite;
+	si.hStdError = hPWrite;
+
+	GetDlgItemText(IDC_EDIT_CMD, szCmd, MAX_PATH * 2);
+	bCreatProc = ::CreateProcess(NULL, szCmd, NULL, NULL, TRUE, NULL, NULL, NULL, &si, &pi);
 	// 防止句柄泄露警告
 	CloseHandle(pi.hProcess);
 	CloseHandle(pi.hThread);
 
 	if (!bCreatProc) {
 		MessageBox(TEXT("CreateProcess() failed"));
+		CloseHandle(hPWrite);
+		CloseHandle(hPRead);
+		return;
+	} else {
+		// 读管道前先关掉写管道的句柄
+		CloseHandle(hPWrite);
+		// 循环读
+		while (1) {
+			/*::ZeroMemory(szBuf, sizeof(szBuf));*/
+			memset(szBuf, 0, sizeof(szBuf));
+			if (!ReadFile(hPRead, szBuf, 4096, &dwRead, NULL)) {
+				// 没读取的内容时退出循环
+				break;
+			}
+
+			strOutput += szBuf;
+			SetDlgItemText(IDC_EDIT_OUTPUT, strOutput);
+		}
+
+		CloseHandle(hPRead);
 	}
-
-
 }
