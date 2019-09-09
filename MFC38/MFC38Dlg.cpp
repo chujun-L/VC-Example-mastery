@@ -65,6 +65,7 @@ BEGIN_MESSAGE_MAP(CMFC38Dlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BUTTON1, &CMFC38Dlg::OnBnClickedButton1)
 END_MESSAGE_MAP()
 
 
@@ -153,3 +154,43 @@ HCURSOR CMFC38Dlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CMFC38Dlg::OnBnClickedButton1()
+{
+	// * 在这可以不提升权限
+	RaisePrivileges();
+	// processId = 3256
+	HANDLE hProc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, 3256);
+	if (hProc == NULL) {
+		AfxMessageBox(TEXT("OpenProcess failed"));
+	} else {
+		AfxMessageBox(TEXT("OpenProcess success"));
+	}
+}
+
+// 提升权限
+void CMFC38Dlg::RaisePrivileges()
+{
+	HANDLE hToken;
+	TOKEN_PRIVILEGES tkp;
+	tkp.PrivilegeCount = 1;
+	tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+
+	if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ALL_ACCESS, &hToken)) {
+		AfxMessageBox(TEXT("OpenProcessToken() failed"));
+		return;
+	}
+
+	if (!LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &tkp.Privileges[0].Luid)) {
+		AfxMessageBox(TEXT("LookupPrivilegeValue() failed"));
+		return;
+	}
+
+	if (!AdjustTokenPrivileges(hToken, FALSE, &tkp, NULL, (PTOKEN_PRIVILEGES)NULL, NULL)) {
+		AfxMessageBox(TEXT("AdjustTokenPrivileges() failed"));
+		CloseHandle(hToken);
+		return;
+	}
+	AfxMessageBox(TEXT("AdjustTokenPrivileges() success"));
+}
