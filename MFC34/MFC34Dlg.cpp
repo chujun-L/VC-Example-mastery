@@ -65,7 +65,8 @@ BEGIN_MESSAGE_MAP(CMFC34Dlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
-//	ON_WM_LBUTTONDOWN()
+ON_WM_LBUTTONDOWN()
+ON_WM_LBUTTONUP()
 END_MESSAGE_MAP()
 
 
@@ -154,11 +155,26 @@ HCURSOR CMFC34Dlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+void CMFC34Dlg::ProcessMouseMessage(LPCTSTR lpszEvent, LPCTSTR lpszkey, const CPoint &point)
+{
+	CString strMsg;
+
+	strMsg.Format(TEXT("鼠标%s%s:    坐标:  %d, %d"), lpszEvent, lpszkey, point.x, point.y);
+	SetDlgItemText(IDC_STATIC, strMsg);
+}
 
 
-//void CMFC34Dlg::OnLButtonDown(UINT nFlags, CPoint point)
-//{
-//	// TODO: 在此添加消息处理程序代码和/或调用默认值
-//
-//	CDialogEx::OnLButtonDown(nFlags, point);
-//}
+void CMFC34Dlg::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	ProcessMouseMessage(TEXT("左键"), TEXT("按下"), point);
+
+	CDialogEx::OnLButtonDown(nFlags, point);
+}
+
+
+void CMFC34Dlg::OnLButtonUp(UINT nFlags, CPoint point)
+{
+	ProcessMouseMessage(TEXT("左键"), TEXT("松开"), point);
+
+	CDialogEx::OnLButtonUp(nFlags, point);
+}

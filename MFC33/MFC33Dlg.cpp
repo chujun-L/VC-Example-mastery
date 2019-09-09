@@ -188,8 +188,8 @@ void CMFC33Dlg::OnBnClickedButtonLogout()
 		return;
 	}
 
-	AfxMessageBox(TEXT("注销-提权成功"));
-	//ExitWindowsEx(EWX_LOGOFF, 0);
+	//AfxMessageBox(TEXT("注销-提权成功"));
+	ExitWindowsEx(EWX_LOGOFF, 0);
 }
 
 
@@ -223,8 +223,8 @@ void CMFC33Dlg::OnBnClickedButtonShutdown()
 		return;
 	}
 
-	AfxMessageBox(TEXT("关机-提权成功"));
-	//ExitWindowsEx(EWX_SHUTDOWN, 0);
+	//AfxMessageBox(TEXT("关机-提权成功"));
+	ExitWindowsEx(EWX_SHUTDOWN, 0);
 }
 
 
@@ -258,6 +258,6 @@ void CMFC33Dlg::OnBnClickedButtonReboot()
 		return;
 	}
 
-	AfxMessageBox(TEXT("重启-提权成功"));
-	//ExitWindowsEx(EWX_REBOOT, 0);
+	//AfxMessageBox(TEXT("重启-提权成功"));
+	ExitWindowsEx(EWX_REBOOT, 0);
 }
