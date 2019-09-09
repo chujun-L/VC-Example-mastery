@@ -54,6 +54,8 @@ CMFC38Dlg::CMFC38Dlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_MFC38_DIALOG, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+
+	m_hProc = 0;
 }
 
 void CMFC38Dlg::DoDataExchange(CDataExchange* pDX)
@@ -67,6 +69,7 @@ BEGIN_MESSAGE_MAP(CMFC38Dlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BUTTON1, &CMFC38Dlg::OnBnClickedButton1)
 	ON_BN_CLICKED(IDC_BUTTON2, &CMFC38Dlg::OnBnClickedButton2)
+	ON_BN_CLICKED(IDC_BUTTON3, &CMFC38Dlg::OnBnClickedButton3)
 END_MESSAGE_MAP()
 
 
@@ -199,4 +202,22 @@ void CMFC38Dlg::RaisePrivileges()
 		return;
 	}
 	AfxMessageBox(TEXT("AdjustTokenPrivileges() success"));
+}
+
+
+void CMFC38Dlg::OnBnClickedButton3()
+{
+	DWORD pid;
+	// CalcFrame可以用spy++获取
+	HWND hCalc = ::FindWindow(TEXT("CalcFrame"), TEXT("计算器"));
+	GetWindowThreadProcessId(hCalc, &pid);
+
+	RaisePrivileges();
+	m_hProc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
+	if (m_hProc) {
+		AfxMessageBox(TEXT("OpenProcess success"));
+	} else {
+		AfxMessageBox(TEXT("OpenProcess failed"));
+		return;
+	}
 }
