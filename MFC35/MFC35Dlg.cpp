@@ -54,6 +54,10 @@ CMFC35Dlg::CMFC35Dlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_MFC35_DIALOG, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+
+	m_bMouseMoving = FALSE;
+	m_ptMouse.x = 0;
+	m_ptMouse.y = 0;
 }
 
 void CMFC35Dlg::DoDataExchange(CDataExchange* pDX)
@@ -65,6 +69,10 @@ BEGIN_MESSAGE_MAP(CMFC35Dlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_WM_LBUTTONDOWN()
+	ON_WM_MOUSEMOVE()
+	ON_WM_LBUTTONUP()
+	ON_WM_ACTIVATE()
 END_MESSAGE_MAP()
 
 
@@ -153,3 +161,57 @@ HCURSOR CMFC35Dlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CMFC35Dlg::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	m_bMouseMoving = TRUE;
+	SetCapture();
+	m_ptMouse = point;
+
+	CDialogEx::OnLButtonDown(nFlags, point);
+}
+
+
+void CMFC35Dlg::OnMouseMove(UINT nFlags, CPoint point)
+{
+	int x, y;
+	RECT rc;
+
+	if (m_bMouseMoving) {
+		// 计算窗口的偏移量
+		x = point.x - m_ptMouse.x;
+		y = point.y - m_ptMouse.y;
+		// 大小2个像素才移动，防止移动过快产生的闪烁
+		if (abs(x) >= 2 || abs(y) >= 2) {
+			GetWindowRect(&rc);
+			OffsetRect(&rc, x, y);
+			MoveWindow(&rc,TRUE);
+		}
+	}
+
+	CDialogEx::OnMouseMove(nFlags, point);
+}
+
+
+void CMFC35Dlg::OnLButtonUp(UINT nFlags, CPoint point)
+{
+	if (m_bMouseMoving) {
+		m_bMouseMoving = FALSE;
+		ReleaseCapture();
+	}
+
+	CDialogEx::OnLButtonUp(nFlags, point);
+}
+
+
+void CMFC35Dlg::OnActivate(UINT nState, CWnd *pWndOther, BOOL bMinimized)
+{
+	CDialogEx::OnActivate(nState, pWndOther, bMinimized);
+
+	//当窗口失去焦点时
+	if (nState == WA_INACTIVE && m_bMouseMoving) {
+		m_bMouseMoving = FALSE;
+		ReleaseCapture();
+	}
+}
