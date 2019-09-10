@@ -19,6 +19,7 @@
 
 CMFC43ADlg::CMFC43ADlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_MFC43A_DIALOG, pParent)
+	, m_strSend(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -26,11 +27,13 @@ CMFC43ADlg::CMFC43ADlg(CWnd* pParent /*=nullptr*/)
 void CMFC43ADlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Text(pDX, IDC_EDIT_SEND, m_strSend);
 }
 
 BEGIN_MESSAGE_MAP(CMFC43ADlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BUTTON_SEND, &CMFC43ADlg::OnBnClickedButtonSend)
 END_MESSAGE_MAP()
 
 
@@ -45,7 +48,20 @@ BOOL CMFC43ADlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
-	// TODO: 在此添加额外的初始化代码
+	// 创建文件映射
+	m_hMapObj = ::CreateFileMapping((HANDLE)0xFFFFFFFF, NULL, PAGE_READWRITE,
+						0, 0x1000, TEXT("shared_memory"));
+	if (!m_hMapObj) {
+		AfxMessageBox(TEXT("CreateFileMapping() failed"));
+		return FALSE;
+	}
+
+	m_pszMapView = (LPTSTR)::MapViewOfFile(m_hMapObj, FILE_MAP_WRITE, 0, 0, 0);
+	if (!m_pszMapView) {
+		AfxMessageBox(TEXT("MapViewOfFile() failed"));
+		CloseHandle(m_hMapObj);
+		return FALSE;
+	}
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -86,3 +102,13 @@ HCURSOR CMFC43ADlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CMFC43ADlg::OnBnClickedButtonSend()
+{
+	// 自动把文本框的内容获取到m_strSend变量里(动态数据交换/数据关联)
+	UpdateData(TRUE);
+
+	// 拷贝到共享内存
+	lstrcpy(m_pszMapView, m_strSend);
+}
