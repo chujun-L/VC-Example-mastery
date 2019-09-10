@@ -20,6 +20,9 @@ class CMFC41App : public CWinApp
 public:
 	CMFC41App();
 
+private:
+	HANDLE m_hMutex;
+
 // 重写
 public:
 	virtual BOOL InitInstance();

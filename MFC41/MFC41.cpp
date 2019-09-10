@@ -37,6 +37,15 @@ CMFC41App theApp;
 
 BOOL CMFC41App::InitInstance()
 {
+	m_hMutex = ::CreateMutex(NULL,FALSE, TEXT("DemoApp"));
+	if (GetLastError() == ERROR_ALREADY_EXISTS) {
+		AfxMessageBox(TEXT("已经有一个实例在运行"));
+		return FALSE;
+	} else {
+		AfxMessageBox(TEXT("实例是第一次运行"));
+	}
+
+
 	CWinApp::InitInstance();
 
 
