@@ -39,11 +39,29 @@ BOOL CMFC41App::InitInstance()
 {
 	m_hMutex = ::CreateMutex(NULL,FALSE, TEXT("DemoApp"));
 	if (GetLastError() == ERROR_ALREADY_EXISTS) {
-		AfxMessageBox(TEXT("已经有一个实例在运行"));
+		//AfxMessageBox(TEXT("已经有一个实例在运行"));
+
+		// 获取桌面所有的窗口
+		CWnd *pDesktopWnd = CWnd::GetDesktopWindow();
+		
+		// 获取桌面的第一个窗口
+		CWnd *pWnd = pDesktopWnd->GetWindow(GW_CHILD);
+
+		// 循环获取桌面的窗口
+		while (pWnd) {
+			if (::GetProp(pWnd->m_hWnd, m_pszExeName)) {
+				// 找到当前程序的窗口后，在前台显示
+				pWnd->SetForegroundWindow();
+				return TRUE;
+			}
+
+			// 继续找一下个窗口
+			pWnd = pWnd->GetWindow(GW_HWNDNEXT);
+		}
+
 		return FALSE;
-	} else {
-		AfxMessageBox(TEXT("实例是第一次运行"));
 	}
+	//AfxMessageBox(TEXT("实例是第一次运行"));
 
 
 	CWinApp::InitInstance();

@@ -65,6 +65,8 @@ BEGIN_MESSAGE_MAP(CMFC41Dlg, CDialogEx)
 	ON_WM_SYSCOMMAND()
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_WM_CREATE()
+	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 
@@ -153,3 +155,24 @@ HCURSOR CMFC41Dlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+int CMFC41Dlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+	if (CDialogEx::OnCreate(lpCreateStruct) == -1)
+		return -1;
+
+	// 创建窗口时，添加一个属性
+	::SetProp(m_hWnd, AfxGetApp()->m_pszExeName, (HANDLE)1);
+
+	return 0;
+}
+
+
+void CMFC41Dlg::OnDestroy()
+{
+	CDialogEx::OnDestroy();
+
+	// 关闭窗口时，删除属性
+	::RemoveProp(m_hWnd, AfxGetApp()->m_pszExeName);
+}
