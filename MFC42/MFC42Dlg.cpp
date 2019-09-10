@@ -19,13 +19,16 @@
 
 CMFC42Dlg::CMFC42Dlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_MFC42_DIALOG, pParent)
+	, m_strText(_T(""))
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
 
+// 数据交换
 void CMFC42Dlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Text(pDX, IDC_EDIT_TEXT, m_strText);
 }
 
 BEGIN_MESSAGE_MAP(CMFC42Dlg, CDialogEx)
@@ -36,6 +39,48 @@ END_MESSAGE_MAP()
 
 // CMFC42Dlg 消息处理程序
 
+BOOL CMFC42Dlg::LoadFile(CString strFileName)
+{
+	HANDLE hFile;
+	HANDLE hFileMapping;
+	void *pBase;
+
+	// step 1
+	hFile = ::CreateFile(strFileName, GENERIC_READ, FILE_SHARE_READ, 0,
+				OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, 0);
+	if (hFile == INVALID_HANDLE_VALUE) {
+		AfxMessageBox(TEXT("CreateFile() failed"));
+		return FALSE;
+	}
+
+	// step 2
+	hFileMapping = ::CreateFileMapping(hFile, 0, PAGE_READONLY, 0, 0, NULL);
+	if (!hFileMapping) {
+		AfxMessageBox(TEXT("CreateFileMapping() failed"));
+		CloseHandle(hFile);
+		return FALSE;
+	}
+
+	// step 3
+	pBase = ::MapViewOfFile(hFileMapping, FILE_MAP_READ, 0, 0, 0);
+	if (!pBase) {
+		AfxMessageBox(TEXT("MapViewOfFile() failed"));
+		CloseHandle(hFileMapping);
+		CloseHandle(hFile);
+		return FALSE;
+	}
+
+	// 读映射文件的内容
+	m_strText = (LPTSTR)pBase;
+
+	// step 4
+	UnmapViewOfFile(pBase);
+	CloseHandle(hFileMapping);
+	CloseHandle(hFile);
+
+	return TRUE;
+}
+
 BOOL CMFC42Dlg::OnInitDialog()
 {
 	CDialogEx::OnInitDialog();
@@ -45,7 +90,8 @@ BOOL CMFC42Dlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
-	// TODO: 在此添加额外的初始化代码
+	LoadFile(TEXT("test.txt"));
+	UpdateData(FALSE);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
