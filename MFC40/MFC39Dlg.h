@@ -11,6 +11,7 @@ class CMFC39Dlg : public CDialogEx
 // 构造
 public:
 	CMFC39Dlg(CWnd* pParent = nullptr);	// 标准构造函数
+	~CMFC39Dlg();
 
 // 对话框数据
 #ifdef AFX_DESIGN_TIME
@@ -24,6 +25,9 @@ public:
 // 实现
 protected:
 	HICON m_hIcon;
+
+	HANDLE m_hInRead;
+	HANDLE m_hOutWrite;
 
 	// 生成的消息映射函数
 	virtual BOOL OnInitDialog();

@@ -12,6 +12,7 @@
 #define new DEBUG_NEW
 #endif
 
+TCHAR szCmd[MAX_PATH * 2] = TEXT("cmd");
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
 
@@ -49,11 +50,68 @@ END_MESSAGE_MAP()
 // CMFC39Dlg 对话框
 
 
-
+// 在构造函数里创建管道及进程
 CMFC39Dlg::CMFC39Dlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_MFC39_DIALOG, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+
+	m_hInRead = 0;
+	m_hOutWrite = 0;
+
+	// 输入管道的写及输出管道的读句柄、管道相关参数
+	HANDLE hInWrite, hOutRead;
+	SECURITY_ATTRIBUTES sa;
+	::ZeroMemory(&sa, sizeof(sa));
+	sa.nLength = sizeof(sa);
+	sa.bInheritHandle = TRUE;
+	sa.lpSecurityDescriptor = NULL;
+
+	// 命令行进程相关参数
+	BOOL bCreatProc;
+	STARTUPINFO si;
+	PROCESS_INFORMATION pi;
+	::ZeroMemory(&si, sizeof(si));
+	::ZeroMemory(&pi, sizeof(pi));
+
+	// 管道 1 InputPipe
+	bCreatProc = ::CreatePipe(&m_hInRead, &hInWrite, &sa, 0);
+	if (!bCreatProc) {
+		MessageBox(TEXT("CreatePipe() InputPipe failed"));
+		return;
+	}
+
+	// 管道 2 OutputPipe
+	bCreatProc = ::CreatePipe(&hOutRead, &m_hOutWrite, &sa, 0);
+	if (!bCreatProc) {
+		MessageBox(TEXT("CreatePipe() OutputPipe failed"));
+		return;
+	}
+
+	si.cb = sizeof(si);
+	si.wShowWindow = SW_HIDE;
+	si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
+	si.hStdInput = hOutRead;
+	si.hStdOutput = hInWrite;
+	si.hStdError = hInWrite;
+
+	bCreatProc = ::CreateProcess(NULL, szCmd, NULL, NULL, TRUE, NULL, NULL, NULL, &si, &pi);
+	// 防止句柄泄露警告
+	CloseHandle(pi.hProcess);
+	CloseHandle(pi.hThread);
+
+	if (!bCreatProc) {
+		MessageBox(TEXT("CreateProcess() failed"));
+	}
+
+	CloseHandle(hInWrite);
+	CloseHandle(hOutRead);
+}
+
+CMFC39Dlg::~CMFC39Dlg()
+{
+	CloseHandle(m_hInRead);
+	CloseHandle(m_hOutWrite);
 }
 
 void CMFC39Dlg::DoDataExchange(CDataExchange* pDX)
@@ -158,65 +216,26 @@ HCURSOR CMFC39Dlg::OnQueryDragIcon()
 // 设置工程属性：作用多字节字符集
 void CMFC39Dlg::OnBnClickedRunCmd()
 {
-	// 管道的读、写句柄
-	HANDLE hPWrite, hPRead;
-
-	SECURITY_ATTRIBUTES sa;
-	::ZeroMemory(&sa, sizeof(sa));
-	sa.nLength = sizeof(sa);
-	sa.bInheritHandle = TRUE;
-	sa.lpSecurityDescriptor = NULL;
-
-	TCHAR szBuf[4096] = {0};
-	DWORD dwRead;
+	TCHAR szBuf[4096] = { 0 };
 	CString strOutput;
+	DWORD dwRead;
+	DWORD dwBytes;
 	
-	BOOL bCreatProc;
-	TCHAR szCmd[MAX_PATH * 2] = {0};
-	STARTUPINFO si;
-	PROCESS_INFORMATION pi;
-	::ZeroMemory(&si, sizeof(si));
-	::ZeroMemory(&pi, sizeof(pi));
-	si.cb = sizeof(si);
-	si.wShowWindow = SW_HIDE;
-	si.dwFlags = STARTF_USESHOWWINDOW | STARTF_USESTDHANDLES;
-	si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
-
-	bCreatProc = ::CreatePipe(&hPRead, &hPWrite, &sa, 0);
-	if (!bCreatProc) {
-		MessageBox(TEXT("CreatePipe() failed"));
-		return;
-	}
-	si.hStdOutput = hPWrite;
-	si.hStdError = hPWrite;
 
 	GetDlgItemText(IDC_EDIT_CMD, szCmd, MAX_PATH * 2);
-	bCreatProc = ::CreateProcess(NULL, szCmd, NULL, NULL, TRUE, NULL, NULL, NULL, &si, &pi);
-	// 防止句柄泄露警告
-	CloseHandle(pi.hProcess);
-	CloseHandle(pi.hThread);
+	strcat_s(szCmd, "\n");
 
-	if (!bCreatProc) {
-		MessageBox(TEXT("CreateProcess() failed"));
-		CloseHandle(hPWrite);
-		CloseHandle(hPRead);
-		return;
-	} else {
-		// 读管道前先关掉写管道的句柄
-		CloseHandle(hPWrite);
-		// 循环读
-		while (1) {
-			/*::ZeroMemory(szBuf, sizeof(szBuf));*/
-			memset(szBuf, 0, sizeof(szBuf));
-			if (!ReadFile(hPRead, szBuf, 4096, &dwRead, NULL)) {
-				// 没读取的内容时退出循环
-				break;
-			}
+	WriteFile(m_hOutWrite, szCmd, strlen(szCmd), &dwBytes, NULL);
+	Sleep(200);
 
-			strOutput += szBuf;
-			SetDlgItemText(IDC_EDIT_OUTPUT, strOutput);
+	while (PeekNamedPipe(m_hInRead, szBuf, 4096, &dwRead, NULL, 0) && dwRead > 0) {
+		::ZeroMemory(szBuf, sizeof(szBuf));
+		if (!ReadFile(m_hInRead, szBuf, dwRead, &dwRead, NULL)) {
+			MessageBox(TEXT("ReadFile failed"));
+			return;
 		}
 
-		CloseHandle(hPRead);
+		strOutput += szBuf;
+		SetDlgItemText(IDC_EDIT_OUTPUT, strOutput);
 	}
 }
