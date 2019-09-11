@@ -104,26 +104,26 @@ void CMFC51Dlg::OnBnClickedButton2()
 
 UINT Button1Thread(LPVOID pParam)
 {
-	for (int i = 0; i < 10000; ++i) {
+	for (int i = 0; i < 100000000; ++i) {
 		k = k * 2;
 		k = k / 2;
 		total += k;
-
-		::SetDlgItemInt(AfxGetApp()->m_pMainWnd->m_hWnd, IDC_STATIC, total, FALSE);
 	}
+
+	::SetDlgItemInt(AfxGetApp()->m_pMainWnd->m_hWnd, IDC_STATIC, total, FALSE);
 
 	return 0;
 }
 
 UINT Button2Thread(LPVOID pParam)
 {
-	for (int i = 0; i < 10000; ++i) {
+	for (int i = 0; i < 100000000; ++i) {
 		k = k * 2;
 		k = k / 2;
 		total += k;
-
-		::SetDlgItemInt(AfxGetApp()->m_pMainWnd->m_hWnd, IDC_STATIC, total, FALSE);
 	}
+
+	::SetDlgItemInt(AfxGetApp()->m_pMainWnd->m_hWnd, IDC_STATIC, total, FALSE);
 
 	return 0;
 }
