@@ -4,6 +4,8 @@
 
 #pragma once
 
+UINT Button1Thread(LPVOID pParam);
+UINT Button2Thread(LPVOID pParam);
 
 // CMFC51Dlg 对话框
 class CMFC51Dlg : public CDialogEx
@@ -30,4 +32,7 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnBnClickedButton1();
+	afx_msg void OnBnClickedButton2();
 };

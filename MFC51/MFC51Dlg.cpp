@@ -14,7 +14,6 @@
 
 
 // CMFC51Dlg 对话框
-UINT Button1Thread(LPVOID pParam);
 
 int k = 1;
 int total = 0;
@@ -35,6 +34,7 @@ BEGIN_MESSAGE_MAP(CMFC51Dlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_BN_CLICKED(IDC_BUTTON1, &CMFC51Dlg::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTON2, &CMFC51Dlg::OnBnClickedButton2)
 END_MESSAGE_MAP()
 
 
@@ -97,14 +97,32 @@ void CMFC51Dlg::OnBnClickedButton1()
 	AfxBeginThread(Button1Thread, NULL);
 }
 
+void CMFC51Dlg::OnBnClickedButton2()
+{
+	AfxBeginThread(Button2Thread, NULL);
+}
+
 UINT Button1Thread(LPVOID pParam)
 {
-	for (int i = 0; i <= 100000000; ++i) {
+	for (int i = 0; i < 10000; ++i) {
 		k = k * 2;
 		k = k / 2;
 		total += k;
 
-		::SetDlgItemInt(AfxGetApp()->m_pMainWnd->m_hWnd, IDC_STATIC, total, NULL);
+		::SetDlgItemInt(AfxGetApp()->m_pMainWnd->m_hWnd, IDC_STATIC, total, FALSE);
+	}
+
+	return 0;
+}
+
+UINT Button2Thread(LPVOID pParam)
+{
+	for (int i = 0; i < 10000; ++i) {
+		k = k * 2;
+		k = k / 2;
+		total += k;
+
+		::SetDlgItemInt(AfxGetApp()->m_pMainWnd->m_hWnd, IDC_STATIC, total, FALSE);
 	}
 
 	return 0;
