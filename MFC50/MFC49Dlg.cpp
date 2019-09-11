@@ -15,12 +15,16 @@
 
 // CMFC49Dlg 对话框
 
-
+CWinThread *g_pButton2Thread;
+BOOL g_bRunnigButton2Thread;
 
 CMFC49Dlg::CMFC49Dlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_MFC49_DIALOG, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+
+	g_pButton2Thread = NULL;
+	g_bRunnigButton2Thread = FALSE;
 }
 
 void CMFC49Dlg::DoDataExchange(CDataExchange* pDX)
@@ -34,6 +38,9 @@ BEGIN_MESSAGE_MAP(CMFC49Dlg, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON1, &CMFC49Dlg::OnBnClickedButton1)
 	ON_BN_CLICKED(IDC_BUTTON2, &CMFC49Dlg::OnBnClickedButton2)
 	ON_BN_CLICKED(IDC_BUTTON3, &CMFC49Dlg::OnBnClickedButton3)
+	ON_BN_CLICKED(IDC_BUTTON_SUSPEND, &CMFC49Dlg::OnBnClickedButtonSuspend)
+	ON_BN_CLICKED(IDC_BUTTON_RESUME, &CMFC49Dlg::OnBnClickedButtonResume)
+	ON_BN_CLICKED(IDC_BUTTON_END, &CMFC49Dlg::OnBnClickedButtonEnd)
 END_MESSAGE_MAP()
 
 
@@ -103,7 +110,12 @@ void CMFC49Dlg::OnBnClickedButton1()
 
 void CMFC49Dlg::OnBnClickedButton2()
 {
-	AfxBeginThread(Button2Thread, NULL);
+	if (g_pButton2Thread == NULL) {
+		g_pButton2Thread = AfxBeginThread(Button2Thread, NULL);
+		g_bRunnigButton2Thread = TRUE;
+	} else {
+		AfxMessageBox(TEXT("线程已经启动"));
+	}
 }
 
 void CMFC49Dlg::OnBnClickedButton3()
@@ -116,9 +128,11 @@ void CMFC49Dlg::OnBnClickedButton3()
 UINT Button2Thread(LPVOID pParam)
 {
 	for (int i = 0; i < 100; ++i) {
+		if (!g_bRunnigButton2Thread) break;
 		::SetDlgItemInt(AfxGetApp()->m_pMainWnd->m_hWnd, IDC_STATIC_2, i, FALSE);
 		Sleep(500);
 	}
+	g_pButton2Thread = NULL;
 
 	return 0;
 }
@@ -131,4 +145,34 @@ UINT Button3Thread(LPVOID pParam)
 	}
 
 	return 0;
+}
+
+
+void CMFC49Dlg::OnBnClickedButtonSuspend()
+{
+	if (g_pButton2Thread == NULL) {
+		AfxMessageBox(TEXT("线程不存在"));
+	} else {
+		g_pButton2Thread->SuspendThread();
+	}
+}
+
+
+void CMFC49Dlg::OnBnClickedButtonResume()
+{
+	if (g_pButton2Thread == NULL) {
+		AfxMessageBox(TEXT("线程不存在"));
+	} else {
+		g_pButton2Thread->ResumeThread();
+	}
+}
+
+
+void CMFC49Dlg::OnBnClickedButtonEnd()
+{
+	if (g_pButton2Thread == NULL) {
+		AfxMessageBox(TEXT("线程不存在"));
+	} else {
+		g_bRunnigButton2Thread = FALSE;
+	}
 }
