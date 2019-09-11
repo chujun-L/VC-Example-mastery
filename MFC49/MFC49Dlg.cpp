@@ -31,6 +31,9 @@ void CMFC49Dlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CMFC49Dlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BUTTON1, &CMFC49Dlg::OnBnClickedButton1)
+	ON_BN_CLICKED(IDC_BUTTON2, &CMFC49Dlg::OnBnClickedButton2)
+	ON_BN_CLICKED(IDC_BUTTON3, &CMFC49Dlg::OnBnClickedButton3)
 END_MESSAGE_MAP()
 
 
@@ -86,3 +89,46 @@ HCURSOR CMFC49Dlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CMFC49Dlg::OnBnClickedButton1()
+{
+	for (int i = 0; i < 100; ++i) {
+		SetDlgItemInt(IDC_STATIC_1, i);
+		// 会产生主线程阻塞
+		Sleep(1000);
+	}
+}
+
+
+void CMFC49Dlg::OnBnClickedButton2()
+{
+	AfxBeginThread(Button2Thread, NULL);
+}
+
+void CMFC49Dlg::OnBnClickedButton3()
+{
+	AfxBeginThread(Button3Thread, NULL);
+}
+
+
+// 因为Button2Thread()是全局函数，所以SetDlgItemInt也需要用全局的。
+UINT Button2Thread(LPVOID pParam)
+{
+	for (int i = 0; i < 100; ++i) {
+		::SetDlgItemInt(AfxGetApp()->m_pMainWnd->m_hWnd, IDC_STATIC_2, i, FALSE);
+		Sleep(500);
+	}
+
+	return 0;
+}
+
+UINT Button3Thread(LPVOID pParam)
+{
+	for (int i = 100; i >=0; --i) {
+		::SetDlgItemInt(AfxGetApp()->m_pMainWnd->m_hWnd, IDC_STATIC_3, i, FALSE);
+		Sleep(500);
+	}
+
+	return 0;
+}
