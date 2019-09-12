@@ -15,6 +15,14 @@
 
 // CMFC51Dlg 对话框
 
+
+/*
+ * 线程同步的四个方法：
+ * 1 临界区 CCriticalSection
+ * 2 互斥量 CMutex
+ * 3 信号量 CSemahore
+ * 4 事件   CEvent
+ */
 int k = 1;
 int total = 0;
 
