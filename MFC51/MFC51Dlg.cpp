@@ -26,7 +26,7 @@
 int k = 1;
 int total = 0;
 
-CSemaphore *g_pSemaphore;
+CEvent *g_pEvent;
 
 
 CMFC51Dlg::CMFC51Dlg(CWnd* pParent /*=nullptr*/)
@@ -34,13 +34,13 @@ CMFC51Dlg::CMFC51Dlg(CWnd* pParent /*=nullptr*/)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
-	// 创建信号量
-	g_pSemaphore = new CSemaphore(1, 1);
+	// 创建事件
+	g_pEvent = new CEvent(TRUE);
 }
 
 CMFC51Dlg::~CMFC51Dlg()
 {
-	delete g_pSemaphore;
+	delete g_pEvent;
 }
 
 void CMFC51Dlg::DoDataExchange(CDataExchange* pDX)
@@ -122,7 +122,7 @@ void CMFC51Dlg::OnBnClickedButton2()
 
 UINT Button1Thread(LPVOID pParam)
 {
-	CSingleLock singleLock(g_pSemaphore);
+	CSingleLock singleLock(g_pEvent);
 
 	for (int i = 0; i < 100000000; ++i) {
 		singleLock.Lock();
@@ -131,6 +131,8 @@ UINT Button1Thread(LPVOID pParam)
 			k = k / 2;
 			total += k;
 			singleLock.Unlock();
+			//发送事件给其他的线程
+			g_pEvent->SetEvent();
 		}
 	}
 
@@ -141,7 +143,7 @@ UINT Button1Thread(LPVOID pParam)
 
 UINT Button2Thread(LPVOID pParam)
 {
-	CSingleLock singleLock(g_pSemaphore);
+	CSingleLock singleLock(g_pEvent);
 
 	for (int i = 0; i < 100000000; ++i) {
 		singleLock.Lock();
@@ -150,6 +152,7 @@ UINT Button2Thread(LPVOID pParam)
 			k = k / 2;
 			total += k;
 			singleLock.Unlock();
+			g_pEvent->SetEvent();
 		}
 	}
 
