@@ -26,7 +26,7 @@
 int k = 1;
 int total = 0;
 
-CCriticalSection *g_pCS;
+CMutex *g_pMutex;
 
 
 CMFC51Dlg::CMFC51Dlg(CWnd* pParent /*=nullptr*/)
@@ -34,13 +34,13 @@ CMFC51Dlg::CMFC51Dlg(CWnd* pParent /*=nullptr*/)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
-	// 创建临界区对象
-	g_pCS = new CCriticalSection();
+	// 创建互斥量
+	g_pMutex = new CMutex();
 }
 
 CMFC51Dlg::~CMFC51Dlg()
 {
-	delete g_pCS;
+	delete g_pMutex;
 }
 
 void CMFC51Dlg::DoDataExchange(CDataExchange* pDX)
@@ -122,12 +122,16 @@ void CMFC51Dlg::OnBnClickedButton2()
 
 UINT Button1Thread(LPVOID pParam)
 {
+	CSingleLock singleLock(g_pMutex);
+
 	for (int i = 0; i < 100000000; ++i) {
-		g_pCS->Lock();
-		k = k * 2;
-		k = k / 2;
-		total += k;
-		g_pCS->Unlock();
+		singleLock.Lock();
+		if (singleLock.IsLocked()) {
+			k = k * 2;
+			k = k / 2;
+			total += k;
+			singleLock.Unlock();
+		}
 	}
 
 	::SetDlgItemInt(AfxGetApp()->m_pMainWnd->m_hWnd, IDC_STATIC, total, FALSE);
@@ -137,12 +141,16 @@ UINT Button1Thread(LPVOID pParam)
 
 UINT Button2Thread(LPVOID pParam)
 {
+	CSingleLock singleLock(g_pMutex);
+
 	for (int i = 0; i < 100000000; ++i) {
-		g_pCS->Lock();
-		k = k * 2;
-		k = k / 2;
-		total += k;
-		g_pCS->Unlock();
+		singleLock.Lock();
+		if (singleLock.IsLocked()) {
+			k = k * 2;
+			k = k / 2;
+			total += k;
+			singleLock.Unlock();
+		}
 	}
 
 	::SetDlgItemInt(AfxGetApp()->m_pMainWnd->m_hWnd, IDC_STATIC, total, FALSE);
