@@ -25,9 +25,21 @@ public:
 protected:
 	HICON m_hIcon;
 
+	int m_nZoomPercent;
+	CBitmap m_bmp;
+	CBitmap *m_pOldBmp;
+	CDC m_dc;
+
+	void FreeObjects();
+
 	// 生成的消息映射函数
 	virtual BOOL OnInitDialog();
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnOpenBitmap();
+	afx_msg void OnDestroy();
+	afx_msg void OnZoominBitmap();
+	afx_msg void OnZoomoutBitmap();
 };

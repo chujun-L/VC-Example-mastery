@@ -31,10 +31,23 @@ void CMFC53Dlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CMFC53Dlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_COMMAND(ID_OPEN_BITMAP, &CMFC53Dlg::OnOpenBitmap)
+	ON_WM_DESTROY()
+	ON_COMMAND(ID_ZOOMIN_BITMAP, &CMFC53Dlg::OnZoominBitmap)
+	ON_COMMAND(ID_ZOOMOUT_BITMAP, &CMFC53Dlg::OnZoomoutBitmap)
 END_MESSAGE_MAP()
 
 
 // CMFC53Dlg 消息处理程序
+
+void CMFC53Dlg::FreeObjects()
+{
+	if (m_dc.GetSafeHdc()) {
+		m_dc.SelectObject(m_pOldBmp);
+		m_dc.DeleteDC();
+		m_bmp.DeleteObject();
+	}
+}
 
 BOOL CMFC53Dlg::OnInitDialog()
 {
@@ -45,7 +58,8 @@ BOOL CMFC53Dlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
-	// TODO: 在此添加额外的初始化代码
+	m_nZoomPercent = 100;
+	m_pOldBmp = NULL;
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -75,7 +89,20 @@ void CMFC53Dlg::OnPaint()
 	}
 	else
 	{
-		CDialogEx::OnPaint();
+		if (!m_dc.GetSafeHdc()) {
+			// 没有位图时就不需要画图
+			CDialogEx::OnPaint();
+		} else {
+			CPaintDC dc(this);
+			CRect rect;
+			GetClientRect(&rect);
+			::FillRect(dc.GetSafeHdc(), rect, (HBRUSH)GetStockObject(WHITE_BRUSH));
+			BITMAP bm;
+			m_bmp.GetBitmap(&bm);
+			dc.StretchBlt(0, 0, bm.bmWidth * m_nZoomPercent / 100, bm.bmHeight * m_nZoomPercent / 100,
+				&m_dc, 0, 0, bm.bmWidth, bm.bmHeight, SRCCOPY);
+
+		}	
 	}
 }
 
@@ -86,3 +113,56 @@ HCURSOR CMFC53Dlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CMFC53Dlg::OnOpenBitmap()
+{
+	// 保证打开第二张图片时的原图的大小
+	m_nZoomPercent = 100;
+
+	CFileDialog dlg(TRUE, NULL, NULL, OFN_FILEMUSTEXIST,
+					TEXT("*.bmp | *.bmp||"), this);
+	if (dlg.DoModal() == IDOK) {
+		HBITMAP hbmp = (HBITMAP)LoadImage(NULL, dlg.GetPathName(), 
+						IMAGE_BITMAP, 0, 0, LR_DEFAULTSIZE | LR_LOADFROMFILE);
+		if (!hbmp) {
+			AfxMessageBox(TEXT("LoadImage() failed"));
+			return;
+		}
+
+		FreeObjects();
+
+		m_bmp.Attach(hbmp);
+
+		CDC *pDC = GetDC();
+		m_dc.CreateCompatibleDC(pDC);
+		ReleaseDC(pDC);
+		m_pOldBmp = m_dc.SelectObject(&m_bmp);
+		//  失效后会自动转到OnPaint()
+		Invalidate(FALSE);
+	}
+}
+
+
+void CMFC53Dlg::OnDestroy()
+{
+	CDialogEx::OnDestroy();
+
+	FreeObjects();
+}
+
+
+void CMFC53Dlg::OnZoominBitmap()
+{
+	m_nZoomPercent += 10;
+	Invalidate(FALSE);
+}
+
+
+void CMFC53Dlg::OnZoomoutBitmap()
+{
+	if (m_nZoomPercent > 10) {
+		m_nZoomPercent -= 10;
+		Invalidate(FALSE);
+	}
+}
