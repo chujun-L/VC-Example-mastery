@@ -13,6 +13,7 @@ class CMFC51Dlg : public CDialogEx
 // 构造
 public:
 	CMFC51Dlg(CWnd* pParent = nullptr);	// 标准构造函数
+	~CMFC51Dlg();
 
 // 对话框数据
 #ifdef AFX_DESIGN_TIME
