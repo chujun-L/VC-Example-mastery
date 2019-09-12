@@ -26,7 +26,7 @@
 int k = 1;
 int total = 0;
 
-CMutex *g_pMutex;
+CSemaphore *g_pSemaphore;
 
 
 CMFC51Dlg::CMFC51Dlg(CWnd* pParent /*=nullptr*/)
@@ -34,13 +34,13 @@ CMFC51Dlg::CMFC51Dlg(CWnd* pParent /*=nullptr*/)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 
-	// 创建互斥量
-	g_pMutex = new CMutex();
+	// 创建信号量
+	g_pSemaphore = new CSemaphore(1, 1);
 }
 
 CMFC51Dlg::~CMFC51Dlg()
 {
-	delete g_pMutex;
+	delete g_pSemaphore;
 }
 
 void CMFC51Dlg::DoDataExchange(CDataExchange* pDX)
@@ -122,7 +122,7 @@ void CMFC51Dlg::OnBnClickedButton2()
 
 UINT Button1Thread(LPVOID pParam)
 {
-	CSingleLock singleLock(g_pMutex);
+	CSingleLock singleLock(g_pSemaphore);
 
 	for (int i = 0; i < 100000000; ++i) {
 		singleLock.Lock();
@@ -141,7 +141,7 @@ UINT Button1Thread(LPVOID pParam)
 
 UINT Button2Thread(LPVOID pParam)
 {
-	CSingleLock singleLock(g_pMutex);
+	CSingleLock singleLock(g_pSemaphore);
 
 	for (int i = 0; i < 100000000; ++i) {
 		singleLock.Lock();
