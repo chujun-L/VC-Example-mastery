@@ -1,5 +1,4 @@
-﻿
-// MFC55Dlg.cpp: 实现文件
+﻿// MFC55Dlg.cpp: 实现文件
 //
 
 #include "pch.h"
@@ -11,6 +10,10 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+
+#include <gdiplus.h>
+#pragma comment (lib,"Gdiplus.lib")
+using namespace Gdiplus;
 
 
 // CMFC55Dlg 对话框
@@ -31,6 +34,8 @@ void CMFC55Dlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CMFC55Dlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_WM_DESTROY()
+	ON_BN_CLICKED(IDC_BUTTON1, &CMFC55Dlg::OnBnClickedButton1)
 END_MESSAGE_MAP()
 
 
@@ -45,7 +50,8 @@ BOOL CMFC55Dlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
-	// TODO: 在此添加额外的初始化代码
+	// 初始化GDI+
+	Gdiplus::GdiplusStartup(&m_pGdiToken, &m_pGdiplusStartupInput, NULL);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -86,3 +92,23 @@ HCURSOR CMFC55Dlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CMFC55Dlg::OnDestroy()
+{
+	CDialogEx::OnDestroy();
+
+	Gdiplus::GdiplusShutdown(m_pGdiToken);
+}
+
+
+void CMFC55Dlg::OnBnClickedButton1()
+{
+	Gdiplus::Graphics g(this->m_hWnd);
+	FontFamily fontFamily(L"Times New Roman");
+	Gdiplus::Font font(&fontFamily, 24);
+	PointF pointF(100.0f, 200.0f);
+	SolidBrush brush(Color(255, 0, 0, 255));
+	
+	g.DrawString(L"Hello world", -1, &font, pointF, &brush);
+}
