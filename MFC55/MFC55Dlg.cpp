@@ -111,4 +111,7 @@ void CMFC55Dlg::OnBnClickedButton1()
 	SolidBrush brush(Color(255, 0, 0, 255));
 	
 	g.DrawString(L"Hello world", -1, &font, pointF, &brush);
+
+	Pen pen(Color(255, 0, 0, 255));
+	g.DrawLine(&pen, 100, 260, 500, 260);
 }
