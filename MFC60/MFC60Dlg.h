@@ -4,6 +4,7 @@
 
 #pragma once
 
+// 会在Debug目录生成msado15.tlh(类型库头文件)及msado15.tli(类型库实现文件)
 #import "C:\Program Files\Common Files\system\ado\msado15.dll" no_namespace rename("EOF", "adoEOF")
 
 // CMFC60Dlg 对话框
@@ -31,4 +32,6 @@ protected:
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnDestroy();
 };

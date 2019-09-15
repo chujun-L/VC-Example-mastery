@@ -31,6 +31,7 @@ void CMFC60Dlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CMFC60Dlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 
@@ -86,3 +87,11 @@ HCURSOR CMFC60Dlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CMFC60Dlg::OnDestroy()
+{
+	CDialogEx::OnDestroy();
+
+	CoUninitialize();
+}
