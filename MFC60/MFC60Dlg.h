@@ -4,6 +4,7 @@
 
 #pragma once
 
+#import "C:\Program Files\Common Files\system\ado\msado15.dll" no_namespace rename("EOF", "adoEOF")
 
 // CMFC60Dlg 对话框
 class CMFC60Dlg : public CDialogEx
