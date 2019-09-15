@@ -25,9 +25,20 @@ public:
 protected:
 	HICON m_hIcon;
 
+	ULONG_PTR m_gdiPlusToken;
+	Gdiplus::GdiplusStartupInput m_gdiplusStartupInput;
+
+	Gdiplus::Image *m_pImage;
+
+	BOOL GetImageCLSID(const WCHAR *format, CLSID *pCLSID);
+
 	// 生成的消息映射函数
 	virtual BOOL OnInitDialog();
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnBnClickedButton1();
+	afx_msg void OnDestroy();
+	afx_msg void OnBnClickedButton2();
 };

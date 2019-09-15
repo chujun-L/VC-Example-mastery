@@ -12,6 +12,10 @@
 #define new DEBUG_NEW
 #endif
 
+#include <gdiplus.h>
+using namespace Gdiplus;
+#pragma comment (lib,"Gdiplus.lib")
+
 
 // CMFC56Dlg 对话框
 
@@ -31,10 +35,47 @@ void CMFC56Dlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CMFC56Dlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
+	ON_BN_CLICKED(IDC_BUTTON1, &CMFC56Dlg::OnBnClickedButton1)
+	ON_WM_DESTROY()
+	ON_BN_CLICKED(IDC_BUTTON2, &CMFC56Dlg::OnBnClickedButton2)
 END_MESSAGE_MAP()
 
 
 // CMFC56Dlg 消息处理程序
+
+BOOL CMFC56Dlg::GetImageCLSID(const WCHAR *format, CLSID *pCLSID)
+{
+	UINT nNum = 0;
+	UINT nSize = 0;
+	ImageCodecInfo *pImageCodeInfo = NULL;
+
+	// 获取系统的支持的图片格式
+	GetImageEncodersSize(&nNum, &nSize);
+	if (nSize == 0) {
+		return FALSE;
+	}
+
+	// 分配被保存图片的内存空间
+	pImageCodeInfo = (ImageCodecInfo *)malloc(nSize);
+	if (pImageCodeInfo == NULL) {
+		return FALSE;
+	}
+
+	GetImageEncoders(nNum, nSize, pImageCodeInfo);
+
+	for (UINT i = 0; i < nNum; i++) {
+		// 找到所需要保存的格式
+		if (wcscmp(pImageCodeInfo[i].MimeType, format) == 0) {
+			// 带回所需要的格式
+			*pCLSID = pImageCodeInfo[i].Clsid;
+			free(pImageCodeInfo);
+			return TRUE;
+		}
+	}
+
+	free(pImageCodeInfo);
+	return FALSE;
+}
 
 BOOL CMFC56Dlg::OnInitDialog()
 {
@@ -46,6 +87,7 @@ BOOL CMFC56Dlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
 	// TODO: 在此添加额外的初始化代码
+	GdiplusStartup(&m_gdiPlusToken, &m_gdiplusStartupInput, NULL);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -86,3 +128,55 @@ HCURSOR CMFC56Dlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
+
+
+void CMFC56Dlg::OnBnClickedButton1()
+{
+	Graphics g(this->m_hWnd);
+	
+	LPCTSTR lpszFilter = TEXT("*.bmp;*.jpg;*.gif;*.png;*.tif;|*.bmp;*.jpg;*.gif;*.png;*.tif;||");
+	CFileDialog fileDlg(TRUE, NULL, NULL, OFN_FILEMUSTEXIST, lpszFilter, this);
+	if (fileDlg.DoModal() == IDOK) {
+		//m_pImage = Image::FromFile(TEXT("C:\\Users\\Alex\\Desktop\\新建文件夹\\1.gif"));
+
+		m_pImage = Image::FromFile(fileDlg.GetPathName());
+		g.DrawImage(m_pImage, PointF(0.0f, 0.0f));
+	}
+}
+
+
+void CMFC56Dlg::OnDestroy()
+{
+	CDialogEx::OnDestroy();
+
+	// TODO: 在此处添加消息处理程序代码
+	GdiplusShutdown(m_gdiPlusToken);
+}
+
+
+void CMFC56Dlg::OnBnClickedButton2()
+{
+	LPCTSTR lpFilter = TEXT("*.bmp|*.bmp|*.jpg|*.jpg|*.gif|*.gif||");
+
+	CFileDialog fdlg(FALSE, NULL, NULL, OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT, lpFilter, this);
+	if (fdlg.DoModal() == IDOK) {
+		//AfxMessageBox(fdlg.GetPathName());
+
+		int nFilter = fdlg.m_ofn.nFilterIndex;
+		CLSID fmt = {0};
+
+		switch (nFilter) {
+		case 1:
+			GetImageCLSID(L"image/bmp", &fmt);
+			break;
+		case 2:
+			GetImageCLSID(L"image/jpeg", &fmt);
+			break;
+		case 3:
+			GetImageCLSID(L"image/gif", &fmt);
+			break;
+		}
+
+		m_pImage->Save(fdlg.GetPathName(), &fmt);
+	}
+}
