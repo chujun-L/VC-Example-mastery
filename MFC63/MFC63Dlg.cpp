@@ -26,6 +26,7 @@ CMFC63Dlg::CMFC63Dlg(CWnd* pParent /*=nullptr*/)
 void CMFC63Dlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_LIST1, m_list);
 }
 
 BEGIN_MESSAGE_MAP(CMFC63Dlg, CDialogEx)
@@ -46,19 +47,35 @@ BOOL CMFC63Dlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
+	// 初始化显示列表
+	LV_COLUMN listColumn;
+	listColumn.mask = LVCF_FMT | LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
+	listColumn.fmt = LVCFMT_LEFT;
+	TCHAR *listTile[2] = {TEXT("学员"), TEXT("姓名")};
+	int nColCx[2] = {100, 120};
+	for (int ncol = 0; ncol < 2; ++ncol) {
+		listColumn.cx = nColCx[ncol];
+		listColumn.iSubItem = ncol;
+		listColumn.pszText = listTile[ncol];
+		m_list.InsertColumn(ncol, &listColumn);
+	}
+	m_list.SetExtendedStyle(LVS_EX_FULLROWSELECT);
+
 	// ADO初始化操作
 	AfxOleInit();
-
 	m_pCn.CreateInstance(__uuidof(Connection));
 	m_pCn->ConnectionString = TEXT("Provider=MSDASQL.1; Persist Security Info=False; \
 									Driver = MySQL ODBC 8.0 Unicode Driver; \
 									SERVER = localhost; Data Source = student_ado");
-
 	try {
 		m_pCn->Open(TEXT(""), TEXT(""), TEXT(""), adModeUnknown);
 	} catch (_com_error e) {
 		AfxMessageBox(e.Description());
+		m_pCn = NULL;
+		return FALSE;
 	}
+
+	m_pRs.CreateInstance(__uuidof(Recordset));
 
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
