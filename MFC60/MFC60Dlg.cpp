@@ -47,6 +47,8 @@ BEGIN_MESSAGE_MAP(CMFC60Dlg, CDialogEx)
 	ON_WM_DESTROY()
 	ON_BN_CLICKED(IDC_BUTTON_OPEN, &CMFC60Dlg::OnBnClickedButtonOpen)
 	ON_BN_CLICKED(IDC_BUTTON_CLOSE, &CMFC60Dlg::OnBnClickedButtonClose)
+	ON_BN_CLICKED(IDC_BUTTON_READ, &CMFC60Dlg::OnBnClickedButtonRead)
+	ON_BN_CLICKED(IDC_BUTTON_CLEAR, &CMFC60Dlg::OnBnClickedButtonClear)
 END_MESSAGE_MAP()
 
 
@@ -108,6 +110,8 @@ void CMFC60Dlg::OnDestroy()
 {
 	CDialogEx::OnDestroy();
 
+	//m_pRecordsetMysql->Release();
+	//m_pConnectionMysql->Release();
 	CoUninitialize();
 }
 
@@ -121,14 +125,23 @@ void CMFC60Dlg::OnBnClickedButtonOpen()
 	}
 
 	// 连接字符串
-	CString strConnection = TEXT("Provider=MSDASQL.1; Persist Security Info=False; \
-								Driver = MySQL ODBC 8.0 Unicode Driver; \
-								SERVER = localhost; Data Source = mysql_ado");
+	// 写法1
+	//CString strConnection = TEXT("Provider=MSDASQL.1; Persist Security Info=False; \
+	//							Driver = MySQL ODBC 8.0 Unicode Driver; \
+	//							SERVER = localhost; Data Source = mysql_ado");
+	// 写法2 用户名、密码、数据库名已经在mysql_ado指定
+	m_pConnectionMysql->ConnectionString = TEXT("Provider=MSDASQL.1; Persist Security Info=False; \
+											Driver = MySQL ODBC 8.0 Unicode Driver; \
+											SERVER = localhost; Data Source = mysql_ado");
 
 	// 打开mysql
 	try {
-		m_pConnectionMysql->Open(_bstr_t(strConnection),
-								TEXT(""), TEXT(""), adConnectUnspecified);
+		// 写法1
+		//m_pConnectionMysql->Open(_bstr_t(strConnection),
+		//						TEXT(""), TEXT(""), adConnectUnspecified);
+
+		// 写法2
+		m_pConnectionMysql->Open(TEXT(""), TEXT(""), TEXT(""), adConnectUnspecified);
 	} catch (_com_error e) {
 		AfxMessageBox(e.Description());
 	}
@@ -139,7 +152,35 @@ void CMFC60Dlg::OnBnClickedButtonClose()
 {
 	try {
 		m_pConnectionMysql->Close();
+		//m_pConnectionMysql->Release();
 	} catch (_com_error e) {
 		AfxMessageBox(e.Description());
 	}
+}
+
+
+void CMFC60Dlg::OnBnClickedButtonRead()
+{
+	if (!(m_pConnectionMysql->State & adStateOpen)) {
+		AfxMessageBox(TEXT("未打开连接"));
+		return;
+	}
+
+	m_pRecordsetMysql = m_pConnectionMysql->Execute(TEXT("select * from t_booktype"), NULL, adCmdText);
+	// 循环读数据库行
+	while (!m_pRecordsetMysql->adoEOF) {
+		((CListBox *)GetDlgItem(IDC_LIST1))->AddString((_bstr_t)m_pRecordsetMysql->GetCollect(TEXT("bookTypeName")));
+
+		m_pRecordsetMysql->MoveNext();
+	}
+
+	//m_pRecordsetMysql->Close();
+	//m_pRecordsetMysql->Release();
+}
+
+
+void CMFC60Dlg::OnBnClickedButtonClear()
+{
+	// 清空列表框的内容
+	((CListBox *)GetDlgItem(IDC_LIST1))->ResetContent();
 }

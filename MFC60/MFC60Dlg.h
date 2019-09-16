@@ -28,6 +28,7 @@ protected:
 	HICON m_hIcon;
 
 	_ConnectionPtr m_pConnectionMysql;
+	_RecordsetPtr m_pRecordsetMysql;
 
 	// 生成的消息映射函数
 	virtual BOOL OnInitDialog();
@@ -38,4 +39,6 @@ public:
 	afx_msg void OnDestroy();
 	afx_msg void OnBnClickedButtonOpen();
 	afx_msg void OnBnClickedButtonClose();
+	afx_msg void OnBnClickedButtonRead();
+	afx_msg void OnBnClickedButtonClear();
 };
