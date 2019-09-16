@@ -4,7 +4,7 @@
 
 #pragma once
 
-//#import "C:\Program Files\Common Files\system\ado\msado15.dll" no_namespace rename("EOF", "adoEOF")
+#import "C:\Program Files\Common Files\system\ado\msado15.dll" no_namespace rename("EOF", "adoEOF")
 
 // CMFC63Dlg 对话框
 class CMFC63Dlg : public CDialogEx
@@ -26,9 +26,13 @@ public:
 protected:
 	HICON m_hIcon;
 
+
+
 	// 生成的消息映射函数
 	virtual BOOL OnInitDialog();
 	afx_msg void OnPaint();
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnDestroy();
 };

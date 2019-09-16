@@ -37,6 +37,17 @@ CMFC63App theApp;
 
 BOOL CMFC63App::InitInstance()
 {
+	try {
+		if (SUCCEEDED(CoInitialize(NULL))) {
+			// AfxMessageBox(TEXT("CoInitialize() success"));
+		} else {
+			AfxMessageBox(TEXT("CoInitialize() failed"));
+		}
+	} catch (_com_error e) {
+		AfxMessageBox(e.Description());
+	}
+
+
 	CWinApp::InitInstance();
 
 
