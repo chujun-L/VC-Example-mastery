@@ -51,7 +51,7 @@ BOOL CMFC63Dlg::OnInitDialog()
 	LV_COLUMN listColumn;
 	listColumn.mask = LVCF_FMT | LVCF_TEXT | LVCF_WIDTH | LVCF_SUBITEM;
 	listColumn.fmt = LVCFMT_LEFT;
-	TCHAR *listTile[2] = {TEXT("学员"), TEXT("姓名")};
+	TCHAR *listTile[2] = {TEXT("学号"), TEXT("姓名")};
 	int nColCx[2] = {100, 120};
 	for (int ncol = 0; ncol < 2; ++ncol) {
 		listColumn.cx = nColCx[ncol];
@@ -76,7 +76,35 @@ BOOL CMFC63Dlg::OnInitDialog()
 	}
 
 	m_pRs.CreateInstance(__uuidof(Recordset));
+	LPCTSTR lpSql = TEXT("select * from students order by StudentID");
 
+	try {
+		m_pRs->Open((_variant_t)lpSql, m_pCn.GetInterfacePtr(), adOpenDynamic, adLockOptimistic, adCmdText);
+	} catch (_com_error e) {
+		AfxMessageBox(e.Description());
+	}
+	
+	// 读取数据内容显示在列表上
+	int nItem = 0;
+	_variant_t StudentID, StudentName;
+	CString	strStudentID, strStudentName;
+	while (!m_pRs->adoEOF) {
+		StudentID = m_pRs->GetCollect(TEXT("StudentID"));
+		StudentName = m_pRs->GetCollect(TEXT("StudentName"));
+
+		strStudentID.Format(TEXT("%d"), StudentID.intVal);
+		strStudentName = (LPCTSTR)_bstr_t(StudentName);
+
+		m_list.InsertItem(nItem, strStudentID);
+		m_list.SetItemText(nItem, 1, strStudentName);
+		m_list.SetItemData(nItem, StudentID.intVal);
+
+		++nItem;
+
+		m_pRs->MoveNext();
+	}
+
+	m_pRs->Close();
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
