@@ -38,16 +38,9 @@ CMFC60App theApp;
 BOOL CMFC60App::InitInstance()
 {
 	try {
-		HRESULT hr = CoInitialize(NULL);
-		if (SUCCEEDED(hr)) {
-			AfxMessageBox(TEXT("初始化ADO COM成功"));
-		} else {
-			AfxMessageBox(TEXT("初始化ADO COM失败"));
-		}
+		CoInitialize(NULL);
 	} catch (_com_error e) {
-		CString errorMessage;
-		errorMessage.Format(TEXT("%s"), e.ErrorMessage());
-		AfxMessageBox(errorMessage);
+		AfxMessageBox(e.Description());
 	}
 
 

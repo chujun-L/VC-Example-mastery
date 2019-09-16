@@ -21,6 +21,19 @@ CMFC60Dlg::CMFC60Dlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_MFC60_DIALOG, pParent)
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+
+	// 创建连接对象
+	//if (!SUCCEEDED(m_pConnectionMysql.CreateInstance(__uuidof(Connection)))) {
+	//	m_pConnectionMysql = NULL;
+	//	AfxMessageBox(TEXT("创建连接对象失败"));
+	//}
+
+	// 创建连接对象
+	try {
+		m_pConnectionMysql.CreateInstance(__uuidof(Connection));
+	} catch (_com_error e) {
+		AfxMessageBox(e.Description());
+	}
 }
 
 void CMFC60Dlg::DoDataExchange(CDataExchange* pDX)
@@ -32,6 +45,8 @@ BEGIN_MESSAGE_MAP(CMFC60Dlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_WM_DESTROY()
+	ON_BN_CLICKED(IDC_BUTTON_OPEN, &CMFC60Dlg::OnBnClickedButtonOpen)
+	ON_BN_CLICKED(IDC_BUTTON_CLOSE, &CMFC60Dlg::OnBnClickedButtonClose)
 END_MESSAGE_MAP()
 
 
@@ -94,4 +109,37 @@ void CMFC60Dlg::OnDestroy()
 	CDialogEx::OnDestroy();
 
 	CoUninitialize();
+}
+
+
+void CMFC60Dlg::OnBnClickedButtonOpen()
+{
+	// 防止二次打开连接
+	if (m_pConnectionMysql->State & adStateOpen) {
+		AfxMessageBox(TEXT("mysql已经打开连接"));
+		return;
+	}
+
+	// 连接字符串
+	CString strConnection = TEXT("Provider=MSDASQL.1; Persist Security Info=False; \
+								Driver = MySQL ODBC 8.0 Unicode Driver; \
+								SERVER = localhost; Data Source = mysql_ado");
+
+	// 打开mysql
+	try {
+		m_pConnectionMysql->Open(_bstr_t(strConnection),
+								TEXT(""), TEXT(""), adConnectUnspecified);
+	} catch (_com_error e) {
+		AfxMessageBox(e.Description());
+	}
+}
+
+
+void CMFC60Dlg::OnBnClickedButtonClose()
+{
+	try {
+		m_pConnectionMysql->Close();
+	} catch (_com_error e) {
+		AfxMessageBox(e.Description());
+	}
 }

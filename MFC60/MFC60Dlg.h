@@ -27,6 +27,8 @@ public:
 protected:
 	HICON m_hIcon;
 
+	_ConnectionPtr m_pConnectionMysql;
+
 	// 生成的消息映射函数
 	virtual BOOL OnInitDialog();
 	afx_msg void OnPaint();
@@ -34,4 +36,6 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnDestroy();
+	afx_msg void OnBnClickedButtonOpen();
+	afx_msg void OnBnClickedButtonClose();
 };
