@@ -26,7 +26,8 @@ public:
 protected:
 	HICON m_hIcon;
 
-
+	_ConnectionPtr m_pCn;
+	_RecordsetPtr m_pRs;
 
 	// 生成的消息映射函数
 	virtual BOOL OnInitDialog();

@@ -46,7 +46,20 @@ BOOL CMFC63Dlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
 
-	// TODO: 在此添加额外的初始化代码
+	// ADO初始化操作
+	AfxOleInit();
+
+	m_pCn.CreateInstance(__uuidof(Connection));
+	m_pCn->ConnectionString = TEXT("Provider=MSDASQL.1; Persist Security Info=False; \
+									Driver = MySQL ODBC 8.0 Unicode Driver; \
+									SERVER = localhost; Data Source = student_ado");
+
+	try {
+		m_pCn->Open(TEXT(""), TEXT(""), TEXT(""), adModeUnknown);
+	} catch (_com_error e) {
+		AfxMessageBox(e.Description());
+	}
+
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
