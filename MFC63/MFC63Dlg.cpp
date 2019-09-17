@@ -34,6 +34,7 @@ BEGIN_MESSAGE_MAP(CMFC63Dlg, CDialogEx)
 	ON_WM_QUERYDRAGICON()
 	ON_WM_DESTROY()
 	ON_BN_CLICKED(IDC_BUTTON_DELETE, &CMFC63Dlg::OnBnClickedButtonDelete)
+	ON_BN_CLICKED(IDC_BUTTON_ADD, &CMFC63Dlg::OnBnClickedButtonAdd)
 END_MESSAGE_MAP()
 
 
@@ -72,6 +73,16 @@ void CMFC63Dlg::GetRecordset()
 	}
 
 	m_pRs->Close();
+}
+
+void CMFC63Dlg::ExecuteSql(LPCTSTR lpSql)
+{
+	try {
+		//_variant_t ra;
+		m_pCn->Execute(lpSql, NULL, adCmdText);
+	} catch (_com_error e) {
+		AfxMessageBox(e.Description());
+	}
 }
 
 BOOL CMFC63Dlg::OnInitDialog()
@@ -179,12 +190,25 @@ void CMFC63Dlg::OnBnClickedButtonDelete()
 	TCHAR szSql[256] = {0};
 	_stprintf_s(szSql, TEXT("delete from students where StudentID=%d"), nStudentID);
 
-	_variant_t ra;
-	try {
-		m_pCn->Execute(szSql, &ra, adCmdText);
-	} catch (_com_error e) {
-		AfxMessageBox(e.Description());
-	}
-	
+	ExecuteSql(szSql);
+
 	GetRecordset();
+}
+
+
+void CMFC63Dlg::OnBnClickedButtonAdd()
+{
+	int nStudentID = GetDlgItemInt(IDC_EDIT_ID);
+	CString strStudentName;
+	GetDlgItemText(IDC_EDIT_NAME, strStudentName);
+
+	TCHAR szSql[256] = {0};
+	_stprintf_s(szSql, TEXT("insert into students(StudentID, StudentName) value(%d,'%s')"),
+							nStudentID, (LPCTSTR)strStudentName);
+
+	ExecuteSql(szSql);
+	GetRecordset();
+
+	SetDlgItemInt(IDC_EDIT_ID, NULL, FALSE);
+	SetDlgItemText(IDC_EDIT_NAME, NULL);
 }

@@ -30,6 +30,7 @@ protected:
 	_RecordsetPtr m_pRs;
 
 	void GetRecordset();
+	void ExecuteSql(LPCTSTR lpSql);
 
 	// 生成的消息映射函数
 	virtual BOOL OnInitDialog();
@@ -40,4 +41,5 @@ public:
 	afx_msg void OnDestroy();
 	CListCtrl m_list;
 	afx_msg void OnBnClickedButtonDelete();
+	afx_msg void OnBnClickedButtonAdd();
 };
