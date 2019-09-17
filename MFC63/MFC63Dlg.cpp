@@ -206,6 +206,9 @@ void CMFC63Dlg::OnBnClickedButtonAdd()
 
 	/*TODO: 检查nStudentID、strStudentName的合法性*/
 
+	// 防止SQL注入攻击
+	strStudentName.Replace(TEXT("'"), TEXT("''"));
+
 	TCHAR szSql[256] = {0};
 	_stprintf_s(szSql, TEXT("insert into students(StudentID, StudentName) value(%d,'%s')"),
 							nStudentID, (LPCTSTR)strStudentName);
@@ -240,6 +243,9 @@ void CMFC63Dlg::OnBnClickedButtonModify()
 	int nOldStudentID = (int)m_list.GetItemData(m_list.GetSelectionMark());
 
 	/*TODO: 检查nNewStudentID、strNewStudentName的合法性*/
+
+	// 防止SQL注入攻击
+	strNewStudentName.Replace(TEXT("'"), TEXT("''"));
 
 	TCHAR szSql[256] = {0};
 	_stprintf_s(szSql, TEXT("update students set StudentID=%d, StudentName='%s' where StudentID=%d"),
