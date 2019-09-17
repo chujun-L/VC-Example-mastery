@@ -35,6 +35,8 @@ BEGIN_MESSAGE_MAP(CMFC63Dlg, CDialogEx)
 	ON_WM_DESTROY()
 	ON_BN_CLICKED(IDC_BUTTON_DELETE, &CMFC63Dlg::OnBnClickedButtonDelete)
 	ON_BN_CLICKED(IDC_BUTTON_ADD, &CMFC63Dlg::OnBnClickedButtonAdd)
+	ON_NOTIFY(LVN_ITEMCHANGED, IDC_LIST1, &CMFC63Dlg::OnLvnItemchangedList1)
+	ON_BN_CLICKED(IDC_BUTTON_MODIFY, &CMFC63Dlg::OnBnClickedButtonModify)
 END_MESSAGE_MAP()
 
 
@@ -79,7 +81,7 @@ void CMFC63Dlg::ExecuteSql(LPCTSTR lpSql)
 {
 	try {
 		//_variant_t ra;
-		m_pCn->Execute(lpSql, NULL, adCmdText);
+		m_pCn->Execute((_bstr_t)lpSql, NULL, adCmdText);
 	} catch (_com_error e) {
 		AfxMessageBox(e.Description());
 	}
@@ -202,6 +204,8 @@ void CMFC63Dlg::OnBnClickedButtonAdd()
 	CString strStudentName;
 	GetDlgItemText(IDC_EDIT_NAME, strStudentName);
 
+	/*TODO: 检查nStudentID、strStudentName的合法性*/
+
 	TCHAR szSql[256] = {0};
 	_stprintf_s(szSql, TEXT("insert into students(StudentID, StudentName) value(%d,'%s')"),
 							nStudentID, (LPCTSTR)strStudentName);
@@ -211,4 +215,36 @@ void CMFC63Dlg::OnBnClickedButtonAdd()
 
 	SetDlgItemInt(IDC_EDIT_ID, NULL, FALSE);
 	SetDlgItemText(IDC_EDIT_NAME, NULL);
+}
+
+
+void CMFC63Dlg::OnLvnItemchangedList1(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMLISTVIEW pNMLV = reinterpret_cast<LPNMLISTVIEW>(pNMHDR);
+
+	// 状态发生变化并且被选中，然后把选中的显示在对应的文本框里
+	if ((pNMLV->uChanged & LVIF_STATE) && (pNMLV->uNewState & LVIS_SELECTED)) {
+		SetDlgItemText(IDC_EDIT_ID, m_list.GetItemText(pNMLV->iItem, 0));
+		SetDlgItemText(IDC_EDIT_NAME, m_list.GetItemText(pNMLV->iItem, 1));
+	}
+
+	*pResult = 0;
+}
+
+
+void CMFC63Dlg::OnBnClickedButtonModify()
+{
+	int nNewStudentID = GetDlgItemInt(IDC_EDIT_ID);
+	CString strNewStudentName;
+	GetDlgItemText(IDC_EDIT_NAME, strNewStudentName);
+	int nOldStudentID = (int)m_list.GetItemData(m_list.GetSelectionMark());
+
+	/*TODO: 检查nNewStudentID、strNewStudentName的合法性*/
+
+	TCHAR szSql[256] = {0};
+	_stprintf_s(szSql, TEXT("update students set StudentID=%d, StudentName='%s' where StudentID=%d"),
+							nNewStudentID, (LPCTSTR)strNewStudentName, nOldStudentID);
+
+	ExecuteSql(szSql);
+	GetRecordset();
 }
