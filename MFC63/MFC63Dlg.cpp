@@ -33,10 +33,46 @@ BEGIN_MESSAGE_MAP(CMFC63Dlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_WM_DESTROY()
+	ON_BN_CLICKED(IDC_BUTTON_DELETE, &CMFC63Dlg::OnBnClickedButtonDelete)
 END_MESSAGE_MAP()
 
 
 // CMFC63Dlg 消息处理程序
+
+void CMFC63Dlg::GetRecordset()
+{
+	LPCTSTR lpSql = TEXT("select * from students order by StudentID");
+
+	try {
+		m_pRs->Open((_variant_t)lpSql, m_pCn.GetInterfacePtr(), adOpenDynamic, adLockOptimistic, adCmdText);
+	} catch (_com_error e) {
+		AfxMessageBox(e.Description());
+	}
+
+	// 读取数据内容显示在列表上
+	m_list.DeleteAllItems();
+
+	int nItem = 0;
+	_variant_t StudentID, StudentName;
+	CString	strStudentID, strStudentName;
+	while (!m_pRs->adoEOF) {
+		StudentID = m_pRs->GetCollect(TEXT("StudentID"));
+		StudentName = m_pRs->GetCollect(TEXT("StudentName"));
+
+		strStudentID.Format(TEXT("%d"), StudentID.intVal);
+		strStudentName = (LPCTSTR)_bstr_t(StudentName);
+
+		m_list.InsertItem(nItem, strStudentID);
+		m_list.SetItemText(nItem, 1, strStudentName);
+		m_list.SetItemData(nItem, StudentID.intVal);
+
+		++nItem;
+
+		m_pRs->MoveNext();
+	}
+
+	m_pRs->Close();
+}
 
 BOOL CMFC63Dlg::OnInitDialog()
 {
@@ -76,35 +112,7 @@ BOOL CMFC63Dlg::OnInitDialog()
 	}
 
 	m_pRs.CreateInstance(__uuidof(Recordset));
-	LPCTSTR lpSql = TEXT("select * from students order by StudentID");
-
-	try {
-		m_pRs->Open((_variant_t)lpSql, m_pCn.GetInterfacePtr(), adOpenDynamic, adLockOptimistic, adCmdText);
-	} catch (_com_error e) {
-		AfxMessageBox(e.Description());
-	}
-	
-	// 读取数据内容显示在列表上
-	int nItem = 0;
-	_variant_t StudentID, StudentName;
-	CString	strStudentID, strStudentName;
-	while (!m_pRs->adoEOF) {
-		StudentID = m_pRs->GetCollect(TEXT("StudentID"));
-		StudentName = m_pRs->GetCollect(TEXT("StudentName"));
-
-		strStudentID.Format(TEXT("%d"), StudentID.intVal);
-		strStudentName = (LPCTSTR)_bstr_t(StudentName);
-
-		m_list.InsertItem(nItem, strStudentID);
-		m_list.SetItemText(nItem, 1, strStudentName);
-		m_list.SetItemData(nItem, StudentID.intVal);
-
-		++nItem;
-
-		m_pRs->MoveNext();
-	}
-
-	m_pRs->Close();
+	GetRecordset();
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -151,5 +159,32 @@ void CMFC63Dlg::OnDestroy()
 {
 	CDialogEx::OnDestroy();
 
+	if (m_pCn && m_pCn->State) {
+		m_pCn->Close();
+	}
+
 	CoUninitialize();
+}
+
+
+void CMFC63Dlg::OnBnClickedButtonDelete()
+{
+	int nIndex = m_list.GetSelectionMark();
+	if (nIndex < 0) {
+		return;
+	}
+
+	int nStudentID = (int)m_list.GetItemData(nIndex);
+
+	TCHAR szSql[256] = {0};
+	_stprintf_s(szSql, TEXT("delete from students where StudentID=%d"), nStudentID);
+
+	_variant_t ra;
+	try {
+		m_pCn->Execute(szSql, &ra, adCmdText);
+	} catch (_com_error e) {
+		AfxMessageBox(e.Description());
+	}
+	
+	GetRecordset();
 }

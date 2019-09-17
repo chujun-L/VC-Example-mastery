@@ -29,6 +29,8 @@ protected:
 	_ConnectionPtr m_pCn;
 	_RecordsetPtr m_pRs;
 
+	void GetRecordset();
+
 	// 生成的消息映射函数
 	virtual BOOL OnInitDialog();
 	afx_msg void OnPaint();
@@ -37,4 +39,5 @@ protected:
 public:
 	afx_msg void OnDestroy();
 	CListCtrl m_list;
+	afx_msg void OnBnClickedButtonDelete();
 };
